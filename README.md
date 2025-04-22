@@ -37,10 +37,10 @@ Simulated datasets will be generated using **GSpace**, a tool designed to model 
 It is recommended to use a Conda environment to manage dependencies.
 
 ```bash
-git clone https://github.com/your-username/pathogen-dispersal-estimation.git
-cd pathogen-dispersal-estimation
+git clone git@github.com:rayaneaitallaoua/Pathogen_Dispersal_Rate_Estimation.git
+cd pathogen_dispersal_rate_estimation
 conda env create -f environment.yml
-conda activate pathogen-dispersal
+conda activate pathogen_dispersal_rate_estimation
 ```
 
 ## Usage
