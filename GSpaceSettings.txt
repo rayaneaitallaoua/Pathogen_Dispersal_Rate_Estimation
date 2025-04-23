@@ -1,0 +1,37 @@
+%%%%%%%% SIMULATION SETTINGS %%%%%%%%%%%%%%%
+Data_filename=Example_simulated_sequences
+Run_Number=0
+
+%%%%%%%% OUTPUT FILE FORMAT SETTINGS %%%%%%%
+Output_Dir=../../TestExample_GSpace/results
+Coordinate_file=true
+Sequence_characteristics_file=true
+Fasta=true
+Fasta_Single_Line_Seq=True
+
+%%%%%%%% MARKERS SETTINGS %%%%%%%%%%%%%%%%%%
+Ploidy = Haploid
+Chromosome_number=1
+Sequence_Size=50
+Mutation_Model=HKY
+Mutation_Rate=0.0005
+
+%%%%%%%% RECOMBINATION SETTINGS %%%%%%%%%%%%
+Recombination_Rate=0
+
+%%%%%%%% DEMOGRAPHIC SETTINGS %%%%%%%%%%%%%%
+%% LATTICE
+Lattice_Size_X=20
+Lattice_Size_Y=20
+Ind_Per_Pop=30
+
+%% DISPERSAL
+Dispersal_Distribution=uniform
+Migration_Matrix = false
+
+%%%%%%%% SAMPLE SETTINGS %%%%%%%%%%%%%%%%%%%
+Sample_Size_X=1
+Sample_Size_Y=1
+Min_Sample_Coordinate_X=9
+Min_Sample_Coordinate_Y=12
+Ind_Per_Pop_Sampled=5
