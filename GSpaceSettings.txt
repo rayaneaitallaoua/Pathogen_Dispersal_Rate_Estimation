@@ -1,6 +1,6 @@
 %%%%%%%% SIMULATION SETTINGS %%%%%%%%%%%%%%%
 Data_filename=Example_simulated_sequences
-Run_Number=0
+Run_Number=1
 
 %%%%%%%% OUTPUT FILE FORMAT SETTINGS %%%%%%%
 Output_Dir=../../TestExample_GSpace/results
@@ -28,10 +28,7 @@ Ind_Per_Pop=30
 %% DISPERSAL
 Dispersal_Distribution=uniform
 Migration_Matrix = false
+Disp_Dist_Max=1,1
+Total_Emigration_Rate=0.05
 
 %%%%%%%% SAMPLE SETTINGS %%%%%%%%%%%%%%%%%%%
-Sample_Size_X=1
-Sample_Size_Y=1
-Min_Sample_Coordinate_X=9
-Min_Sample_Coordinate_Y=12
-Ind_Per_Pop_Sampled=5
