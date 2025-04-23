@@ -10,7 +10,7 @@ Fasta=true
 Fasta_Single_Line_Seq=True
 
 %%%%%%%% MARKERS SETTINGS %%%%%%%%%%%%%%%%%%
-Ploidy = Haploid
+Ploidy=Haploid
 Chromosome_number=1
 Sequence_Size=1000
 Mutation_Model=HKY
@@ -31,8 +31,10 @@ Disp_Dist_Max=1,1
 Total_Emigration_Rate=0.05
 
 %%%%%%%% SAMPLE SETTINGS %%%%%%%%%%%%%%%%%%%
-Sample_Size_X=2
-Sample_Size_Y=2
-Min_Sample_Coordinate_X=9
-Min_Sample_Coordinate_Y=12
-Ind_Per_Pop_Sampled=5
+%Sample_Size_X=2
+%Sample_Size_Y=2
+%Min_Sample_Coordinate_X=9
+%Min_Sample_Coordinate_Y=12
+Ind_Per_Node_Sampled=5
+SampleCoordinateX=9,9,10,10
+SampleCoordinateY=12,13,12,13
