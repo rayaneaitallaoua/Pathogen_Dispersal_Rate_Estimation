@@ -542,6 +542,6 @@ def run_GSpace(gspace_settings_dir=".",
     else:
         print(f"Error: {gspace_executable} not found.")
 
-run_GSpace(gspace_dir="../../GSpace/build/GSpace")
+run_GSpace(gspace_dir="../GSpace/build/GSpace")
 
 generate_beast_xml(fasta_file="simulated_sequences_Fasta_1.fa")
