@@ -1,4 +1,6 @@
 import random
+import os
+import subprocess
 
 def generate_gspace_settings(output_dir=".",
                              lattice_size_x=20,
@@ -33,9 +35,9 @@ Data_filename=simulated_sequences
 Run_Number=1
 
 %%%%%%%% OUTPUT FILE FORMAT SETTINGS %%%%%%%
-Output_Dir=../../TestExample_GSpace/results
+Output_Dir=.
 %Coordinate_file=true
-Sequence_characteristics_file=true
+%Sequence_characteristics_file=true
 Fasta=true
 Fasta_Single_Line_Seq=True
 
@@ -67,6 +69,8 @@ SampleCoordinateX={sample_x}
 SampleCoordinateY={sample_y}
 Ind_Per_Node_Sampled={ind_per_node_sampled}
 """
+
+    '''
     print("sampled_positions = ")
     print(sampled_positions)
     print("sample_x = ")
@@ -74,9 +78,21 @@ Ind_Per_Node_Sampled={ind_per_node_sampled}
     print("sample_y = ")
     print(sample_y)
     print(gspace_settings)
+    '''
 
     # Write to file
     with open(f'{output_dir}/GSpaceSettings.txt', "w") as f:
         f.write(gspace_settings)
 
     print(f"GSpaceSettings.txt generated with random sampling coordinates in {output_dir}!")
+
+def run_gspace(gspace_dir="../../GSpace/build/GSpace"):
+
+    # 1. Get GSpace executable
+    gspace_executable = f"{gspace_dir}"
+
+    # 2. Check if executable exists and run
+    if os.path.isfile(gspace_executable):
+        subprocess.run([gspace_executable])
+    else:
+        print(f"Error: {gspace_executable} not found.")
