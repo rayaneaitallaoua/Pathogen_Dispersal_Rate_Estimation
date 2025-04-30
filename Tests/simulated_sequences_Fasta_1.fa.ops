@@ -1,0 +1,13 @@
+
+Operator analysis
+Operator                                          Tuning   Count      Time     Time/Op  Pr(accept) Smoothed_Pr(accept)
+scale(kappa)                                      0.484   473236     13069    0.03     0.2339      0.22        
+deltaExchange(frequencies)                        0.062   471337     13201    0.03     0.2336      0.24        
+scale(ucld.stdev)                                 0.164   1414334    43378    0.03     0.2341      0.16        
+swapOperator(branchRates.categories)                      4712457    121554   0.03     0.5925      0.37        
+uniformInteger(branchRates.categories)                    4713792    119458   0.03     0.6323      0.61        
+subtreeLeap(treeModel)                            4164.42314144701   418313   0.03     0.234       0.26        
+subtreeJump(treeModel)                                    1415189    43035    0.03     0.0065      0.0         
+scale(constant.popSize)                           0.298   1413826    20671    0.01     0.234       0.24        
+precisionGibbsOperator                                    941128     18315    0.02     1.0         1.0         
+
