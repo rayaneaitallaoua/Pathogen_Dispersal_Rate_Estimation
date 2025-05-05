@@ -2,6 +2,7 @@ import random
 import os
 import subprocess
 
+
 def generate_gspace_settings(output_dir=".",
                              lattice_size_x=20,
                              lattice_size_y=20,
@@ -86,8 +87,8 @@ Ind_Per_Node_Sampled={ind_per_node_sampled}
 
     print(f"GSpaceSettings.txt generated with random sampling coordinates in {output_dir}!")
 
-def run_gspace(gspace_dir="../../GSpace/build/GSpace"):
 
+def run_gspace(gspace_dir="../../GSpace/build/GSpace"):
     # 1. Get GSpace executable
     gspace_executable = f"{gspace_dir}"
 
@@ -97,13 +98,14 @@ def run_gspace(gspace_dir="../../GSpace/build/GSpace"):
     else:
         print(f"Error: {gspace_executable} not found.")
 
-def generate_gspace_settings_variable_sample(output_dir=".",
-                             r = 3,
-                             lattice_size_x=20,
-                             lattice_size_y=20,
-                             mutation_rate=1E-5,
-                             num_sampled_nodes=4,
-                             ind_per_node_sampled=5):
+
+def generate_gspace_settings_square_sample(output_dir=".",
+                                             r=3,
+                                             lattice_size_x=20,
+                                             lattice_size_y=20,
+                                             mutation_rate=1E-5,
+                                             num_sampled_nodes=4,
+                                             ind_per_node_sampled=5):
     # find the sampling area
     lattice_center = (int(lattice_size_x / 2), int(lattice_size_y / 2))
 
@@ -160,10 +162,8 @@ def generate_gspace_settings_variable_sample(output_dir=".",
     Ind_Per_Node_Sampled={ind_per_node_sampled}
     """
 
-
     # Write to file
     with open(f'{output_dir}/GSpacesettings_r_{r}.txt', "w") as f:
         f.write(gspace_settings)
 
     print(f"GSpaceSettings_r_{r}.txt generated with random sampling coordinates in {output_dir}!")
-
