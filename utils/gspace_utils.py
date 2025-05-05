@@ -41,7 +41,7 @@ Output_Dir=.
 %Coordinate_file=true
 %Sequence_characteristics_file=true
 Fasta=true
-Fasta_Single_Line_Seq=True
+Fasta_Single_Line_Seq=true
 
 %%%%%%%% MARKERS SETTINGS %%%%%%%%%%%%%%%%%%
 Ploidy=Haploid
@@ -64,23 +64,15 @@ Dispersal_Distribution=uniform
 Disp_Dist_Max=1,1
 Total_Emigration_Rate=0.05
 
-%%%%%%%% SAMPLE SETTINGS %%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%% SAMPLE SETTINGS %%%%%%%%%%%%%%
 Sample_Size_X={len(sample_x.split(","))}
 Sample_Size_Y={len(sample_y.split(","))}
 SampleCoordinateX={sample_x}
 SampleCoordinateY={sample_y}
 Ind_Per_Node_Sampled={ind_per_node_sampled}
+%%%%%% VARIOUS COMPUTATION OPTION S%%%%%%%%%
+Diagnostic_Tables = Effective_Dispersal
 """
-
-    '''
-    print("sampled_positions = ")
-    print(sampled_positions)
-    print("sample_x = ")
-    print(sample_x)
-    print("sample_y = ")
-    print(sample_y)
-    print(gspace_settings)
-    '''
 
     # Write to file
     with open(f'{output_dir}/GSpaceSettings.txt', "w") as f:
@@ -122,46 +114,48 @@ def generate_gspace_settings_square_sample(output_dir=".",
     sample_y = ",".join(str(pos[1]) for pos in sampled_positions)
 
     gspace_settings = f"""%%%%%%%% SIMULATION SETTINGS %%%%%%%%%%%%%%%
-    Data_filename=simulated_sequences_r_{r}
-    Run_Number=1
+Data_filename=simulated_sequences_r_{r}
+Run_Number=1
 
-    %%%%%%%% OUTPUT FILE FORMAT SETTINGS %%%%%%%
-    Output_Dir=.
-    %Coordinate_file=true
-    %Sequence_characteristics_file=true
-    Fasta=true
-    Fasta_Single_Line_Seq=True
+%%%%%%%% OUTPUT FILE FORMAT SETTINGS %%%%%%%
+Output_Dir=.
+%Coordinate_file=true
+%Sequence_characteristics_file=true
+Fasta=true
+Fasta_Single_Line_Seq=True
 
-    %%%%%%%% MARKERS SETTINGS %%%%%%%%%%%%%%%%%%
-    Ploidy=Haploid
-    Chromosome_number=1
-    Sequence_Size=1000
-    Mutation_Model=HKY
-    Mutation_Rate={mutation_rate}
+%%%%%%%% MARKERS SETTINGS %%%%%%%%%%%%%%%%%%
+Ploidy=Haploid
+Chromosome_number=1
+Sequence_Size=1000
+Mutation_Model=HKY
+Mutation_Rate={mutation_rate}
 
-    %%%%%%%% RECOMBINATION SETTINGS %%%%%%%%%%%%
-    Recombination_Rate=0
+%%%%%%%% RECOMBINATION SETTINGS %%%%%%%%%%%%
+Recombination_Rate=0
 
-    %%%%%%%% DEMOGRAPHIC SETTINGS %%%%%%%%%%%%%%
-    %% LATTICE
-    Lattice_Size_X={lattice_size_x}
-    Lattice_Size_Y={lattice_size_y}
-    Ind_Per_Pop=30
+%%%%%%%% DEMOGRAPHIC SETTINGS %%%%%%%%%%%%%%
+%% LATTICE
+Lattice_Size_X={lattice_size_x}
+Lattice_Size_Y={lattice_size_y}
+Ind_Per_Pop=30
 
-    %% DISPERSAL
-    Dispersal_Distribution=uniform
-    Disp_Dist_Max=1,1
-    Total_Emigration_Rate=0.05
+%% DISPERSAL
+Dispersal_Distribution=uniform
+Disp_Dist_Max=1,1
+Total_Emigration_Rate=0.05
 
-    %%%%%%%% SAMPLE SETTINGS %%%%%%%%%%%%%%%%%%%
-    Sample_Size_X={len(sample_x.split(","))}
-    Sample_Size_Y={len(sample_y.split(","))}
-    
-    %% Lattice center: {lattice_center} %%
-    SampleCoordinateX={sample_x}
-    SampleCoordinateY={sample_y}
-    Ind_Per_Node_Sampled={ind_per_node_sampled}
-    """
+%%%%%%%% SAMPLE SETTINGS %%%%%%%%%%%%%%%%%%%
+Sample_Size_X={len(sample_x.split(","))}
+Sample_Size_Y={len(sample_y.split(","))}
+
+%% Lattice center: {lattice_center} %%
+SampleCoordinateX={sample_x}
+SampleCoordinateY={sample_y}
+Ind_Per_Node_Sampled={ind_per_node_sampled}
+%%%%%% VARIOUS COMPUTATION OPTION S%%%%%%%%%
+Diagnostic_Tables = Effective_Dispersal
+"""
 
     # Write to file
     with open(f'{output_dir}/GSpacesettings_r_{r}.txt', "w") as f:
@@ -214,45 +208,47 @@ def generate_gspace_settings_circular_sample(output_dir=".",
     sample_y = ",".join(str(pos[1]) for pos in sampled_positions)
 
     gspace_settings = f"""%%%%%%%% SIMULATION SETTINGS %%%%%%%%%%%%%%%
-    Data_filename=sim_seqs_r_{r}
-    Run_Number=1
+Data_filename=sim_seqs_r_{r}
+Run_Number=1
 
-    %%%%%%%% OUTPUT FILE FORMAT SETTINGS %%%%%%%
-    Output_Dir=.
-    %Coordinate_file=true
-    %Sequence_characteristics_file=true
-    Fasta=true
-    Fasta_Single_Line_Seq=True
+%%%%%%%% OUTPUT FILE FORMAT SETTINGS %%%%%%%
+Output_Dir=.
+%Coordinate_file=true
+%Sequence_characteristics_file=true
+Fasta=true
+Fasta_Single_Line_Seq=True
 
-    %%%%%%%% MARKERS SETTINGS %%%%%%%%%%%%%%%%%%
-    Ploidy=Haploid
-    Chromosome_number=1
-    Sequence_Size=1000
-    Mutation_Model=HKY
-    Mutation_Rate={mutation_rate}
+%%%%%%%% MARKERS SETTINGS %%%%%%%%%%%%%%%%%%
+Ploidy=Haploid
+Chromosome_number=1
+Sequence_Size=1000
+Mutation_Model=HKY
+Mutation_Rate={mutation_rate}
 
-    %%%%%%%% RECOMBINATION SETTINGS %%%%%%%%%%%%
-    Recombination_Rate=0
+%%%%%%%% RECOMBINATION SETTINGS %%%%%%%%%%%%
+Recombination_Rate=0
 
-    %%%%%%%% DEMOGRAPHIC SETTINGS %%%%%%%%%%%%%%
-    %% LATTICE
-    Lattice_Size_X={lattice_size_x}
-    Lattice_Size_Y={lattice_size_y}
-    Ind_Per_Pop=30
+%%%%%%%% DEMOGRAPHIC SETTINGS %%%%%%%%%%%%%%
+%% LATTICE
+Lattice_Size_X={lattice_size_x}
+Lattice_Size_Y={lattice_size_y}
+Ind_Per_Pop=30
 
-    %% DISPERSAL
-    Dispersal_Distribution=uniform
-    Disp_Dist_Max=1,1
-    Total_Emigration_Rate=0.05
+%% DISPERSAL
+Dispersal_Distribution=uniform
+Disp_Dist_Max=1,1
+Total_Emigration_Rate=0.05
 
-    %%%%%%%% SAMPLE SETTINGS %%%%%%%%%%%%%%%%%%%
-    Sample_Size_X={len(sample_x.split(","))}
-    Sample_Size_Y={len(sample_y.split(","))}
+%%%%%%%% SAMPLE SETTINGS %%%%%%%%%%%%%%%%%%%
+Sample_Size_X={len(sample_x.split(","))}
+Sample_Size_Y={len(sample_y.split(","))}
 
-    %% Lattice center: {lattice_center} %%
-    SampleCoordinateX={sample_x}
-    SampleCoordinateY={sample_y}
-    Ind_Per_Node_Sampled={ind_per_node_sampled}
+%% Lattice center: {lattice_center} %%
+SampleCoordinateX={sample_x}
+SampleCoordinateY={sample_y}
+Ind_Per_Node_Sampled={ind_per_node_sampled}
+%%%%%% VARIOUS COMPUTATION OPTION S%%%%%%%%%
+Diagnostic_Tables = Effective_Dispersal
     """
 
     # Write to file
@@ -260,3 +256,4 @@ def generate_gspace_settings_circular_sample(output_dir=".",
         f.write(gspace_settings)
 
     print(f"GSpaceSettings_r_{r}.txt generated with circular sampling in {output_dir}!")
+    return sampled_positions
