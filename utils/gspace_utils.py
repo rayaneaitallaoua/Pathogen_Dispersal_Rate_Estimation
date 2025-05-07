@@ -248,8 +248,8 @@ SampleCoordinateX={sample_x}
 SampleCoordinateY={sample_y}
 Ind_Per_Node_Sampled={ind_per_node_sampled}
 %%%%%% VARIOUS COMPUTATION OPTION S%%%%%%%%%
-Diagnostic_Tables = Effective_Dispersal
-    """
+%Diagnostic_Tables = Effective_Dispersal%
+"""
 
     # Write to file
     with open(f'{output_dir}/GSpaceSettings_r_{r}.txt', "w") as f:
