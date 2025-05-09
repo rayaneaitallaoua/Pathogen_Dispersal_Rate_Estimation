@@ -9,7 +9,10 @@ lattice_size_X = int(input("Enter lattice size X: "))
 lattice_size_Y = int(input("Enter lattice size Y: "))
 radii_to_test = int(input("Enter number of radii to test: "))
 
-radii = [random.randint(1, lattice_size_X//2) for r in range(1, int(radii_to_test)+1)]
+radii = set()
+
+while len(radii)<radii_to_test:
+    radii.add(round(random.randint(1, lattice_size_X//2)))
 
 for radius in radii:
     # make a dir for each radius
@@ -19,7 +22,8 @@ for radius in radii:
     generate_gspace_settings_circular_sample(output_dir=f"./result_r_{radius}",
                                              lattice_size_x=lattice_size_X,
                                              lattice_size_y=lattice_size_Y,
-                                             r=radius)
+                                             r=radius,
+                                             mutation_rate=1E-6)
 
     # change directories for each radius and rename the file
     os.chdir(f"result_r_{radius}")
