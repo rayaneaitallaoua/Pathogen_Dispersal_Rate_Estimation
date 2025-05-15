@@ -39,7 +39,7 @@ Run_Number=1
 %%%%%%%% OUTPUT FILE FORMAT SETTINGS %%%%%%%
 Output_Dir=.
 %Coordinate_file=true
-%Sequence_characteristics_file=true
+Sequence_characteristics_file=true
 Fasta=true
 Fasta_Single_Line_Seq=true
 
@@ -120,7 +120,7 @@ Run_Number=1
 %%%%%%%% OUTPUT FILE FORMAT SETTINGS %%%%%%%
 Output_Dir=.
 %Coordinate_file=true
-%Sequence_characteristics_file=true
+Sequence_characteristics_file=true
 Fasta=true
 Fasta_Single_Line_Seq=True
 
@@ -214,7 +214,7 @@ Run_Number=1
 %%%%%%%% OUTPUT FILE FORMAT SETTINGS %%%%%%%
 Output_Dir=.
 %Coordinate_file=true
-%Sequence_characteristics_file=true
+Sequence_characteristics_file=true
 Fasta=true
 Fasta_Single_Line_Seq=True
 
