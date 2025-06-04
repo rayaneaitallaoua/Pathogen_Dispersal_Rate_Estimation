@@ -10,7 +10,7 @@ import pandas as pd
 mcmc_chain_length = 10000000
 burn_in_value = mcmc_chain_length*0.1
 g_mut_rate = 1E-6
-radii = list(range(1,10))
+radii = [1,10,20,30,40,50]
 
 def generate_gspace_settings_circular_sample(output_dir=".",
                                              r=3,
@@ -118,7 +118,7 @@ def run_gspace(gspace_dir="../../GSpace/build/GSpace"):
 def generate_beast_xml(output_xml="output.xml",
                        mutation_rate=g_mut_rate,
                        chain_length=10000000):
-    fa_files = [os.path.abspath(f) for f in glob.glob("*.fa")]
+    fa_files = [os.path.abspath(f) for f in glob.glob("*_clean.fa")]
 
     for file in fa_files:
 
@@ -622,39 +622,59 @@ def plot_dispersal_rates(radii,
     plt.tight_layout()
     plt.savefig("mean_dispersal_rate.png")
 
-def run_analysis():
+def run_analysis(radii_list, repetitions=10):
+    results = []
 
-    df_dict = {
-        "radius": [],
-        "mean_dispersal_rate": [],
-        "std_dispersal_rate": [],
-    }
+    for radius in radii_list:
+        for sim in range(repetitions):
+            print(f"Radius {radius}, Simulation {sim+1}")
+            dirname = f"./r{radius}_sim{sim+1}"
+            os.makedirs(dirname, exist_ok=True)
+            os.chdir(dirname)
 
-    for radius in radii:
+            generate_gspace_settings_circular_sample(r=radius)
+            run_gspace(gspace_dir="../../../GSpace/build/GSpace")
 
-        print(f"----------------Processing radius {radius}...----------------")
-        os.mkdir(f"./{radius}")
-        os.chdir(f"./{radius}")
+            xml_file = f"r_{radius}.xml"
+            generate_beast_xml(output_xml=xml_file, chain_length=mcmc_chain_length)
+            run_beast(xml_file=xml_file, beast_path="../../../BEAST/bin/beast")
 
-        generate_gspace_settings_circular_sample(r=radius)
-        run_gspace(gspace_dir="../../../GSpace/build/GSpace")
+            mean, std = extract_dispersal_rate(burn_in=burn_in_value)
+            results.append({"radius": radius, "mean": mean, "std": std})
 
-        xml_file = f"r_{radius}.xml"
-        generate_beast_xml(output_xml=xml_file,chain_length=mcmc_chain_length)
-        run_beast(xml_file=xml_file,beast_path="../../../BEAST/bin/beast")
+            os.chdir("..")
 
-        mean, std = extract_dispersal_rate(burn_in=burn_in_value)
+    # Save raw simulation results
+    df = pd.DataFrame(results)
+    df.to_csv("raw_dispersal_rates.csv", index=False)
 
-        df_dict["radius"].append(radius)
-        df_dict["mean_dispersal_rate"].append(mean)
-        df_dict["std_dispersal_rate"].append(std)
+    # Summarize by radius
+    summary = df.groupby("radius")["mean"].agg([
+        ("Mean Dispersal Rate per radius", "mean"),
+        ("median dispersal rate per radius", "median"),
+        ("97.5% quantile", lambda x: x.quantile(0.975)),
+        ("2.5% quantile", lambda x: x.quantile(0.025))
+    ]).reset_index()
 
-        os.chdir("..")
+    summary.to_csv("summary_dispersal_rates.csv", index=False)
 
-    dispersal_rates = pd.DataFrame(df_dict)
+    # Plot
+    plt.figure(figsize=(12, 6))
+    plt.errorbar(
+        summary["radius"],
+        summary["Mean Dispersal Rate per radius"],
+        yerr=[
+            summary["Mean Dispersal Rate per radius"] - summary["2.5% quantile"],
+            summary["97.5% quantile"] - summary["Mean Dispersal Rate per radius"]
+        ],
+        fmt='o-', capsize=5, label="Dispersal Rate"
+    )
+    plt.xlabel("Radius")
+    plt.ylabel("Mean Dispersal Rate")
+    plt.title("Dispersal Rate Summary")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("dispersal_rate_summary_plot.png")
 
-    plot_dispersal_rates(radii=dispersal_rates["radius"],
-                         mean_dispersal_rates=dispersal_rates["mean_dispersal_rate"],
-                         std_dispersal_rates=dispersal_rates["std_dispersal_rate"])
-
-run_analysis()
+run_analysis(radii_list= radii)
