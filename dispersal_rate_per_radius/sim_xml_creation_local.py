@@ -10,7 +10,8 @@ mcmc_chain_length = 10000000
 g_mut_rate = 1E-6
 radii = [10,20,30,40,50]
 rep_per_radius = 50
-nodes_sampled = 10
+nodes_sampled = 4
+ind_per_node = 20
 latt_size_X = 100
 latt_size_Y = 100
 
@@ -584,7 +585,8 @@ def run_analysis(radii_list, repetitions=10):
                                                      mutation_rate=g_mut_rate,
                                                      r=radius,
                                                      seed=sim+1,
-                                                     num_sampled_nodes=nodes_sampled)
+                                                     num_sampled_nodes=nodes_sampled,
+                                                     ind_per_node_sampled=ind_per_node)
             submit_gspace_slurm_job(gspace_dir="../../../GSpace/build/GSpace", job_name=f"gspace_r_{radius}_sim_{sim}", time="00:10:00")
 
             xml_file = f"r{radius}_sim{sim+1}.xml"
