@@ -22,7 +22,7 @@ module load java-jdk/11.0.9.1
 #SBATCH -o {job_name}.%j.out
 #SBATCH -e {job_name}.%j.err
 
-srun {beast} -java {xml_file}
+srun {beast} {xml_file}
 """
 
     script_name = f"{job_name}_submit.sh"
