@@ -4,7 +4,7 @@ import os
 import subprocess
 
 
-def run_beast(xml_file,beast):
+def run_beast(xml_file):
     """Submit BEAST job for a specific XML file"""
     base_name = Path(xml_file).stem
     job_name = f"BEAST_{base_name}"
@@ -22,7 +22,7 @@ module load java-jdk/11.0.9.1
 #SBATCH -o {job_name}.%j.out
 #SBATCH -e {job_name}.%j.err
 
-srun {beast} {xml_file}
+srun beast {xml_file}
 """
 
     script_name = f"{job_name}_submit.sh"
@@ -37,13 +37,6 @@ srun {beast} {xml_file}
 # Main execution
 original_dir = Path.cwd()
 
-# Get the path from the command-line argument
-if len(sys.argv) != 2:
-    print("Usage: python beast_analysis_ifb.py <path to beast bin>")
-    sys.exit(1)
-
-beast_path = sys.argv[1]
-
 # Process all directories containing XML files
 for directory in Path('.').glob('*/'):  # Get all subdirectories
     if directory.is_dir():
@@ -55,7 +48,7 @@ for directory in Path('.').glob('*/'):  # Get all subdirectories
         if xml_files:
             print(f"Processing {directory} with {len(xml_files)} XML files")
             for xml in xml_files:
-                run_beast(xml_file=xml.name,beast=beast_path)
+                run_beast(xml_file=xml.name)
         else:
             print(f"Skipping {directory} - no XML files found")
 
