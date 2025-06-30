@@ -68,7 +68,7 @@ Output_Dir=.
 Sequence_characteristics_file=true
 Fasta=true
 Fasta_Single_Line_Seq=True
-Genepop=true
+%%Genepop=true%%
 
 %%%%%%%% MARKERS SETTINGS %%%%%%%%%%%%%%%%%%
 Ploidy=Haploid
