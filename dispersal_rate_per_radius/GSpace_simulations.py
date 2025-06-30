@@ -147,7 +147,7 @@ def run_analysis(radii_list, repetitions=10):
                                                      seed=sim+1,
                                                      num_sampled_nodes=nodes_sampled,
                                                      ind_per_node_sampled=ind_per_node)
-            submit_gspace_slurm_job(gspace_dir="../../../GSpace/build/GSpace", job_name=f"gspace_r_{radius}_sim_{sim}", time="00:10:00")
+            submit_gspace_slurm_job(gspace_dir="../../../GSpace_Dev/build/GSpace", job_name=f"gspace_r_{radius}_sim_{sim}", time="00:10:00")
 
             os.chdir("..")
 
