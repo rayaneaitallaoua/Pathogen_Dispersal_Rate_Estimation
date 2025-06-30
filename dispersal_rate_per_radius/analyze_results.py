@@ -73,7 +73,7 @@ plt.title("Dispersal Rate by Radius with Quantile Range")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
-plt.show()
+plt.savefig("beast_dispersal_rate_per_radius.png")
 
 def extract_empirical_dispersal(full_output="empirical_dispersal_all.tsv",
                                 grouped_output="empirical_dispersal_grouped.tsv",
@@ -83,68 +83,71 @@ def extract_empirical_dispersal(full_output="empirical_dispersal_all.tsv",
     empirical_dispersal_data = []
     empirical_moments_data = []
 
-    for root, dirs, files in os.walk("."):
-        for file in files:
-            if file.endswith("_GSpace_param_summary.txt"):
-                full_path = os.path.join(root, file)
-                parts = os.path.normpath(full_path).split(os.sep)
-                try:
-                    radius = int([p for p in parts if p.startswith("r")][0][1:])
-                    sim_num = int([p for p in parts if p.startswith("sim")][0][3:])
-                except (IndexError, ValueError):
-                    continue
+    for directory in os.listdir("."):
+        if not os.path.isdir(directory):
+            continue
 
-                with open(full_path, "r") as f:
-                    lines = f.readlines()
+        os.chdir(directory)
+        try:
+            parts = directory.split("_")
+            radius = int(parts[0][1:])   # e.g., 'r10' -> 10
+            sim_num = int(parts[1][3:])  # e.g., 'sim3' -> 3
 
-                # Extract dispersal distribution
-                start_idx = None
-                for i, line in enumerate(lines):
-                    if line.strip().startswith("Empirical dispersal distribution"):
-                        start_idx = i + 1
-                        break
+            for file in os.listdir("."):
+                if file.endswith("_GSpace_param_summary.txt"):
+                    with open(file, "r") as f:
+                        lines = f.readlines()
 
-                if start_idx is not None:
-                    for j in range(start_idx, len(lines)):
-                        line = lines[j].strip()
-                        if not line or line.startswith("#") or line.startswith("%%"):
+                    # Extract dispersal distribution
+                    start_idx = None
+                    for i, line in enumerate(lines):
+                        if line.strip().startswith("Empirical dispersal distribution"):
+                            start_idx = i + 1
                             break
-                        parts = line.split()
-                        if len(parts) != 3:
-                            continue
-                        step, freqX, freqY = parts
-                        empirical_dispersal_data.append({
-                            "radius": radius,
-                            "simulation": sim_num,
-                            "step": int(step),
-                            "freqX": float(freqX),
-                            "freqY": float(freqY)
-                        })
 
-                # Extract dispersal moments
-                meanX = meanY = varX = varY = skewX = skewY = kurtX = kurtY = None
-                for line in lines:
-                    if line.startswith("Empirical dispersal mean"):
-                        meanX, meanY = map(float, line.split(":")[1].strip().split())
-                    elif line.startswith("Empirical dispersal sigma2"):
-                        varX, varY = map(float, line.split(":")[1].strip().split())
-                    elif line.startswith("Empirical dispersal skewness"):
-                        skewX, skewY = map(float, line.split(":")[1].strip().split())
-                    elif line.startswith("Empirical dispersal kurtosis"):
-                        kurtX, kurtY = map(float, line.split(":")[1].strip().split())
+                    if start_idx is not None:
+                        for j in range(start_idx, len(lines)):
+                            line = lines[j].strip()
+                            if not line or line.startswith("#") or line.startswith("%%"):
+                                break
+                            parts = line.split()
+                            if len(parts) != 3:
+                                continue
+                            step, freqX, freqY = parts
+                            empirical_dispersal_data.append({
+                                "radius": radius,
+                                "simulation": sim_num,
+                                "step": int(step),
+                                "freqX": float(freqX),
+                                "freqY": float(freqY)
+                            })
 
-                empirical_moments_data.append({
-                    "radius": radius,
-                    "simulation": sim_num,
-                    "meanX": meanX,
-                    "meanY": meanY,
-                    "varX": varX,
-                    "varY": varY,
-                    "skewX": skewX,
-                    "skewY": skewY,
-                    "kurtX": kurtX,
-                    "kurtY": kurtY
-                })
+                    # Extract dispersal moments
+                    meanX = meanY = varX = varY = skewX = skewY = kurtX = kurtY = None
+                    for line in lines:
+                        if line.startswith("Empirical dispersal mean"):
+                            meanX, meanY = map(float, line.split(":")[1].strip().split())
+                        elif line.startswith("Empirical dispersal sigma2"):
+                            varX, varY = map(float, line.split(":")[1].strip().split())
+                        elif line.startswith("Empirical dispersal skewness"):
+                            skewX, skewY = map(float, line.split(":")[1].strip().split())
+                        elif line.startswith("Empirical dispersal kurtosis"):
+                            kurtX, kurtY = map(float, line.split(":")[1].strip().split())
+
+                    empirical_moments_data.append({
+                        "radius": radius,
+                        "simulation": sim_num,
+                        "meanX": meanX,
+                        "meanY": meanY,
+                        "varX": varX,
+                        "varY": varY,
+                        "skewX": skewX,
+                        "skewY": skewY,
+                        "kurtX": kurtX,
+                        "kurtY": kurtY
+                    })
+        finally:
+            os.chdir("..")
 
     empirical_df = pd.DataFrame(empirical_dispersal_data)
     empirical_df.to_csv(full_output, sep="\t", index=False)
