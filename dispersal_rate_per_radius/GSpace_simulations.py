@@ -100,7 +100,7 @@ Sample_Coordinates_X={sample_x}
 Sample_Coordinates_Y={sample_y}
 Ind_Per_Node_Sampled={ind_per_node_sampled}
 %%%%%% VARIOUS COMPUTATION OPTION S%%%%%%%%%
-%Diagnostic_Tables = Effective_Dispersal%
+empiricaldispersal = TRUE
 """
 
     # Write to file
