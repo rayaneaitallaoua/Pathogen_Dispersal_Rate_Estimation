@@ -9,7 +9,7 @@ from Bio import SeqIO
 mcmc_chain_length = 10000000
 g_mut_rate = 1E-6
 radii = [10,20,30,40,50]
-rep_per_radius = 1
+rep_per_radius = 10
 nodes_sampled = 20
 ind_per_node = 5
 latt_size_X = 100
