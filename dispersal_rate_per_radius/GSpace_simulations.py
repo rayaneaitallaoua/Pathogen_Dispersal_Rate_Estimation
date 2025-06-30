@@ -66,10 +66,10 @@ Random_seeds={r + seed}
 
 %%%%%%%% OUTPUT FILE FORMAT SETTINGS %%%%%%%
 Output_Dir=.
-%Coordinate_file=true
 Sequence_characteristics_file=true
 Fasta=true
 Fasta_Single_Line_Seq=True
+Genepop=true
 
 %%%%%%%% MARKERS SETTINGS %%%%%%%%%%%%%%%%%%
 Ploidy=Haploid
