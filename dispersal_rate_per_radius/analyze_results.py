@@ -166,18 +166,22 @@ def extract_empirical_dispersal(full_output="empirical_dispersal_all.tsv",
     )
     grouped_moments.to_csv(moment_grouped_output, sep="\t", index=False)
 
-    # Plot all 4 parameters by radius
-    plt.figure(figsize=(12, 8))
-    plt.plot(grouped_moments["radius"], grouped_moments["meanX"], label="meanX")
-    plt.plot(grouped_moments["radius"], grouped_moments["varX"], label="varX")
-    plt.plot(grouped_moments["radius"], grouped_moments["skewX"], label="skewX")
-    plt.plot(grouped_moments["radius"], grouped_moments["kurtX"], label="kurtX")
-    plt.xlabel("Radius")
-    plt.ylabel("Moment Value (X)")
-    plt.title("Empirical Dispersal Moments (X) by Radius")
-    plt.legend()
-    plt.grid(True)
+    # Plot each moment parameter (mean, var, skew, kurt) in a separate subplot with X and Y
+    fig, axs = plt.subplots(2, 2, figsize=(14, 10))
+    axs = axs.flatten()
+    parameters = [("meanX", "meanY", "Mean"), ("varX", "varY", "Variance"),
+                  ("skewX", "skewY", "Skewness"), ("kurtX", "kurtY", "Kurtosis")]
+
+    for i, (x_param, y_param, title) in enumerate(parameters):
+        axs[i].plot(grouped_moments["radius"], grouped_moments[x_param], label="X", color="blue")
+        axs[i].plot(grouped_moments["radius"], grouped_moments[y_param], label="Y", color="orange")
+        axs[i].set_title(f"{title} by Radius")
+        axs[i].set_xlabel("Radius")
+        axs[i].set_ylabel(title)
+        axs[i].legend()
+        axs[i].grid(True)
+
     plt.tight_layout()
-    plt.show()
+    plt.savefig("empirical_dispersal_moments_by_radius.png")
 
 extract_empirical_dispersal()
