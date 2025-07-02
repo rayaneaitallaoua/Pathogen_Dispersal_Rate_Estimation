@@ -25,6 +25,11 @@ def extract_and_save_dispersal_stats(burn_in_value=1000000,
             df = pd.read_csv(log_files[0], comment='#', delimiter='\t')
             filtered_df = df[df["state"] > burn_in_value]
 
+            # Delete .trees file to save space
+            tree_files = glob.glob("*.trees")
+            for tf in tree_files:
+                os.remove(tf)
+
             if not filtered_df.empty:
                 results.append({
                     "radius": radius,
