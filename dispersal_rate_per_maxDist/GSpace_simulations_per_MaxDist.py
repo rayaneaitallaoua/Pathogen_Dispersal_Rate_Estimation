@@ -60,7 +60,7 @@ def generate_gspace_settings_circular_sample(output_dir=".",
     sample_y = ",".join(str(pos[1]) for pos in sampled_positions)
 
     gspace_settings = f"""%%%%%%%% SIMULATION SETTINGS %%%%%%%%%%%%%%%
-Data_filename=sim_seqs_r_{r}
+Data_filename=sim_seqs_maxDist_{disp_dist_max[0]}_{disp_dist_max[1]}
 Run_Number=1
 Random_seeds={r + seed}
 
@@ -108,7 +108,7 @@ empiricaldispersal = TRUE
     with open(f'{output_dir}/GSpaceSettings.txt', "w") as f:
         f.write(gspace_settings)
 
-    print(f"GSpaceSettings_r_{r}.txt generated with circular sampling in {output_dir}!")
+    print(f"GSpaceSettings.txt for maxDist = {disp_dist_max[0]}_{disp_dist_max[1]} generated with circular sampling in {output_dir}!")
     return sampled_positions
 
 def submit_gspace_slurm_job(gspace_dir="../../GSpace_Dev/build/GSpace", job_name="gspace_job", time="00:10:00"):
@@ -140,14 +140,16 @@ def run_analysis(disp_max_list, num_repetitions=1):
             os.makedirs(dirname, exist_ok=True)
             os.chdir(dirname)
 
-            generate_gspace_settings_circular_sample(lattice_size_x=latt_size_X,
-                                                     lattice_size_y=latt_size_Y,
-                                                     mutation_rate=g_mut_rate,
-                                                     r=50,
-                                                     seed=sim+1,
-                                                     num_sampled_nodes=nodes_sampled,
-                                                     ind_per_node_sampled=ind_per_node,
-                                                     disp_dist_max=(dx, dy))
+            generate_gspace_settings_circular_sample(
+                lattice_size_x=latt_size_X,
+                lattice_size_y=latt_size_Y,
+                mutation_rate=g_mut_rate,
+                r=50,
+                seed=sim + dx * 1000 + dy * 100000,
+                num_sampled_nodes=nodes_sampled,
+                ind_per_node_sampled=ind_per_node,
+                disp_dist_max=(dx, dy)
+            )
 
             submit_gspace_slurm_job(gspace_dir="../../../GSpace_Dev/build/GSpace", job_name=f"gspace_d{dx}_sim_{sim}", time="00:10:00")
 
