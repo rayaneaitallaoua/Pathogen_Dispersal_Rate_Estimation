@@ -450,7 +450,7 @@ def generate_beast_xml(output_xml="output.xml", mutation_rate=1E-5, chain_length
 base_dir = "."
 
 for folder in sorted(os.listdir(base_dir)):
-    if folder.startswith("r") and "_sim" in folder and os.path.isdir(folder):
+    if folder.startswith("dist") and "_sim" in folder and os.path.isdir(folder):
         os.chdir(folder)
 
         fa_files = glob.glob("*.fa")
