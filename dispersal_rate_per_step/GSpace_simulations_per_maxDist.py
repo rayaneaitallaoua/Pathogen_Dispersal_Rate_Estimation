@@ -8,12 +8,12 @@ from Bio import SeqIO
 
 mcmc_chain_length = 10000000
 g_mut_rate = 1E-6
-radii = [10,20,30,40,50]
-rep_per_radius = 100
 nodes_sampled = 20
 ind_per_node = 1
 latt_size_X = 100
 latt_size_Y = 100
+
+dispersal_max_values = [(1, 1), (3, 3), (5, 5), (10, 10), (50, 50)]
 
 def generate_gspace_settings_circular_sample(output_dir=".",
                                              r=3,
@@ -22,7 +22,8 @@ def generate_gspace_settings_circular_sample(output_dir=".",
                                              mutation_rate=1E-6,
                                              num_sampled_nodes=4,
                                              ind_per_node_sampled=1,
-                                             seed=3):
+                                             seed=3,
+                                             disp_dist_max=(1, 1)):
     # find lattice center
     lattice_center = (lattice_size_x // 2, lattice_size_y // 2)
     sampled_positions = set()
@@ -88,7 +89,7 @@ Ind_Per_Pop=30
 
 %% DISPERSAL
 Dispersal_Distribution=uniform
-Disp_Dist_Max=1,1
+Disp_Dist_Max={disp_dist_max[0]},{disp_dist_max[1]}
 Total_Emigration_Rate=0.05
 
 %%%%%%%% SAMPLE SETTINGS %%%%%%%%%%%%%%%%%%%
@@ -130,24 +131,26 @@ srun {gspace_dir}
 
     subprocess.run(["sbatch", "run_gspace.slurm"])
 
-def run_analysis(radii_list, repetitions=10):
+def run_analysis(disp_max_list, repetitions=10):
 
-    for radius in radii_list:
+    for dx, dy in disp_max_list:
         for sim in range(repetitions):
-            print(f"Radius {radius}, Simulation {sim+1}")
-            dirname = f"./r{radius}_sim{sim+1}"
+            print(f"Disp_Dist_Max {dx},{dy}, Simulation {sim+1}")
+            dirname = f"./dist{dx}_sim{sim+1}"
             os.makedirs(dirname, exist_ok=True)
             os.chdir(dirname)
 
             generate_gspace_settings_circular_sample(lattice_size_x=latt_size_X,
                                                      lattice_size_y=latt_size_Y,
                                                      mutation_rate=g_mut_rate,
-                                                     r=radius,
+                                                     r=50,
                                                      seed=sim+1,
                                                      num_sampled_nodes=nodes_sampled,
-                                                     ind_per_node_sampled=ind_per_node)
-            submit_gspace_slurm_job(gspace_dir="../../../GSpace_Dev/build/GSpace", job_name=f"gspace_r_{radius}_sim_{sim}", time="00:10:00")
+                                                     ind_per_node_sampled=ind_per_node,
+                                                     disp_dist_max=(dx, dy))
+
+            submit_gspace_slurm_job(gspace_dir="../../../GSpace_Dev/build/GSpace", job_name=f"gspace_d{dx}_sim_{sim}", time="00:10:00")
 
             os.chdir("..")
 
-run_analysis(radii_list=radii,repetitions=rep_per_radius)
+run_analysis(disp_max_list=dispersal_max_values, repetitions=100)
