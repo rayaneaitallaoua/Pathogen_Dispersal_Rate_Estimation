@@ -52,7 +52,7 @@ def generate_gspace_settings_circular_sample(output_dir=".",
         node = closest_lattice_node(x, y)
 
         # Ensure node is inside the lattice bounds
-        if 0 <= node[0] < lattice_size_x and 0 <= node[1] < lattice_size_y:
+        if 1 <= node[0] < lattice_size_x and 1 <= node[1] < lattice_size_y:
             sampled_positions.add(node)
 
     sample_x = ",".join(str(pos[0]) for pos in sampled_positions)
