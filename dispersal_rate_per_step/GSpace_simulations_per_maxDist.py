@@ -12,7 +12,7 @@ nodes_sampled = 20
 ind_per_node = 1
 latt_size_X = 100
 latt_size_Y = 100
-
+repetitions = 1
 dispersal_max_values = [(1, 1), (3, 3), (5, 5), (10, 10), (50, 50)]
 
 def generate_gspace_settings_circular_sample(output_dir=".",
@@ -111,7 +111,7 @@ empiricaldispersal = TRUE
     print(f"GSpaceSettings_r_{r}.txt generated with circular sampling in {output_dir}!")
     return sampled_positions
 
-def submit_gspace_slurm_job(gspace_dir="../../GSpace/build/GSpace", job_name="gspace_job", time="00:10:00"):
+def submit_gspace_slurm_job(gspace_dir="../../GSpace_Dev/build/GSpace", job_name="gspace_job", time="00:10:00"):
     slurm_script = f"""#!/bin/bash
 #SBATCH -c 1
 #SBATCH --nodes=1
@@ -131,10 +131,10 @@ srun {gspace_dir}
 
     subprocess.run(["sbatch", "run_gspace.slurm"])
 
-def run_analysis(disp_max_list, repetitions=10):
+def run_analysis(disp_max_list, num_repetitions=1):
 
     for dx, dy in disp_max_list:
-        for sim in range(repetitions):
+        for sim in range(num_repetitions):
             print(f"Disp_Dist_Max {dx},{dy}, Simulation {sim+1}")
             dirname = f"./dist{dx}_sim{sim+1}"
             os.makedirs(dirname, exist_ok=True)
@@ -153,4 +153,4 @@ def run_analysis(disp_max_list, repetitions=10):
 
             os.chdir("..")
 
-run_analysis(disp_max_list=dispersal_max_values, repetitions=100)
+run_analysis(disp_max_list=dispersal_max_values, num_repetitions=repetitions)
