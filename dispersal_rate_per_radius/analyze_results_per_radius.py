@@ -78,7 +78,7 @@ plt.title("Dispersal Rate by Radius with Quantile Range")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("beast_dispersal_rate_per_radius.png")
+plt.savefig("beast_dispersal_rate_per_radius.png",dpi=300)
 
 def extract_empirical_dispersal(full_output="empirical_dispersal_all.tsv",
                                 grouped_output="empirical_dispersal_grouped.tsv",
