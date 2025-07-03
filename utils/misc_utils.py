@@ -35,6 +35,8 @@ def plot_sampling(lattice_size_x,
     - title: title of the plot
     """
     fig, ax = plt.subplots(figsize=(6, 6))
+    fig.patch.set_facecolor('white')
+    ax.set_facecolor('white')
     ax.set_aspect('equal')
     ax.set_xlim(-1, lattice_size_x)
     ax.set_ylim(-1, lattice_size_y)
@@ -69,5 +71,6 @@ def plot_sampling(lattice_size_x,
     plt.xlabel("X")
     plt.ylabel("Y")
     ax.legend(loc='upper right')
+    ax.tick_params(axis='both', labelsize=8)
     plt.tight_layout()
-    plt.show()
+    plt.savefig(f"r_{r}_circular_sampling.png",dpi=300)

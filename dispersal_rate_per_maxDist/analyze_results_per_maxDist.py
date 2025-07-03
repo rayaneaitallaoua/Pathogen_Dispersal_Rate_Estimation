@@ -60,7 +60,7 @@ summary_df = extract_and_save_dispersal_stats()
 
 # Plot with error bars (quantile range)
 plt.figure(figsize=(10, 6))
-plt.plot(summary_df["disp_dist_max"], summary_df["mean_dispersal_rate"], marker='o', label="Mean Dispersal Rate")
+plt.plot(summary_df["disp_dist_max"], summary_df["mean_dispersal_rate"], marker='o', label="Mean Estimated Dispersal Rate")
 
 # Add shaded area for quantile range
 plt.fill_between(
@@ -73,8 +73,8 @@ plt.fill_between(
 )
 
 plt.xlabel("Max Dispersal Distance")
-plt.ylabel("Dispersal Rate")
-plt.title("Dispersal Rate by Radius with Quantile Range")
+plt.ylabel("Estimated Dispersal Rate")
+plt.title("Estimated Dispersal Rate by Maximal Dispersal Distance")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
@@ -183,7 +183,7 @@ def extract_empirical_dispersal(full_output="empirical_dispersal_all.tsv",
     for i, (x_param, y_param, title) in enumerate(parameters):
         axs[i].plot(grouped_moments["disp_dist_max"], grouped_moments[x_param], label="X", color="blue")
         axs[i].plot(grouped_moments["disp_dist_max"], grouped_moments[y_param], label="Y", color="orange")
-        axs[i].set_title(f"{title} by Radius")
+        axs[i].set_title(f"{title} by maximum dispersal distance")
         axs[i].set_xlabel("Max Dispersal Distance")
         axs[i].set_ylabel(title)
         axs[i].legend()
