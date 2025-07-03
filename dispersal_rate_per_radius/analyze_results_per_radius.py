@@ -190,6 +190,6 @@ def extract_empirical_dispersal(full_output="empirical_dispersal_all.tsv",
         axs[i].grid(True)
 
     plt.tight_layout()
-    plt.savefig("empirical_dispersal_moments_by_radius.png")
+    plt.savefig("empirical_dispersal_moments_by_radius.png",dpi=300)
 
 extract_empirical_dispersal()
