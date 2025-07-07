@@ -4,23 +4,21 @@ import os
 import random
 import subprocess
 
-from Bio import SeqIO
-
 mcmc_chain_length = 10000000
 g_mut_rate = 1E-6
-nodes_sampled = 20
+nodes_sampled = 50
 ind_per_node = 1
-latt_size_X = 100
-latt_size_Y = 100
+latt_size_X = 500
+latt_size_Y = 500
 repetitions = 100
 dispersal_max_values = [(1, 1), (3, 3), (5, 5), (10, 10), (20,20), (30,30), (50, 50)]
 
 def generate_gspace_settings_circular_sample(output_dir=".",
                                              r=3,
-                                             lattice_size_x=20,
-                                             lattice_size_y=20,
+                                             lattice_size_x=500,
+                                             lattice_size_y=500,
                                              mutation_rate=1E-6,
-                                             num_sampled_nodes=4,
+                                             num_sampled_nodes=50,
                                              ind_per_node_sampled=1,
                                              seed=3,
                                              disp_dist_max=(1, 1)):
@@ -85,7 +83,7 @@ Recombination_Rate=0
 %% LATTICE
 Lattice_Size_X={lattice_size_x}
 Lattice_Size_Y={lattice_size_y}
-Ind_Per_Pop=30
+Ind_Per_Pop=1
 
 %% DISPERSAL
 Dispersal_Distribution=uniform
@@ -93,13 +91,12 @@ Disp_Dist_Max={disp_dist_max[0]},{disp_dist_max[1]}
 Total_Emigration_Rate=0.05
 
 %%%%%%%% SAMPLE SETTINGS %%%%%%%%%%%%%%%%%%%
-Sample_Size_X={len(sample_x.split(","))}
-Sample_Size_Y={len(sample_y.split(","))}
-
 %% Lattice center: {lattice_center} %%
+
 Sample_Coordinates_X={sample_x}
 Sample_Coordinates_Y={sample_y}
 Ind_Per_Node_Sampled={ind_per_node_sampled}
+
 %%%%%% VARIOUS COMPUTATION OPTION S%%%%%%%%%
 empiricaldispersal = TRUE
 """
