@@ -2,6 +2,7 @@ import os
 import glob
 import pandas as pd
 import matplotlib.pyplot as plt
+from io import StringIO
 
 def extract_empirical_dispersal(full_output="empirical_dispersal_all.tsv",
                                 grouped_output="empirical_dispersal_grouped.tsv",
@@ -121,7 +122,7 @@ def extract_and_compare_diffusion_estimates(
     burn_in_fraction=0.1,
     out_raw="diff_rate_comparison.tsv",
     out_grouped="diff_rate_comparison_grouped.tsv"):
-    from io import StringIO
+
 
     records = []
 
@@ -173,16 +174,22 @@ def extract_and_compare_diffusion_estimates(
     df = pd.DataFrame(records)
     df.to_csv(out_raw, sep="\t", index=False)
 
-    grouped = (
-        df.groupby("radius")[["mean_diff_rate_beast", "calc_diff_rate"]]
-        .agg([
-            ("mean", "mean"),
-            ("2.5%", lambda x: x.quantile(0.025)),
-            ("97.5%", lambda x: x.quantile(0.975))
-        ])
-    )
-    grouped.columns = ['_'.join(col).strip() for col in grouped.columns]
-    grouped = grouped.reset_index()
+    # Compute grouped mean
+    mean_df = df.groupby("radius")[["mean_diff_rate_beast", "calc_diff_rate"]].mean().reset_index()
+    mean_df = mean_df.rename(columns={
+        "mean_diff_rate_beast": "mean_diff_rate_beast_mean",
+        "calc_diff_rate": "calc_diff_rate_mean"
+    })
+
+    # Compute grouped 2.5% and 97.5% quantiles
+    quantiles = df.groupby("radius")[["mean_diff_rate_beast", "calc_diff_rate"]].quantile([0.025, 0.975]).unstack()
+    quantiles.columns = [
+        f"{var}_{q*100:.1f}%" for var, q in quantiles.columns
+    ]
+    quantiles = quantiles.reset_index()
+
+    # Merge results
+    grouped = pd.merge(mean_df, quantiles, on="radius")
     grouped.to_csv(out_grouped, sep="\t", index=False)
 
     # Plot comparison
