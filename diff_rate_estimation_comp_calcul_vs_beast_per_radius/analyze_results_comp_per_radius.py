@@ -289,3 +289,5 @@ def extract_and_compare_diffusion_estimates(
     plt.grid(True)
     plt.tight_layout()
     plt.savefig("diffusion_rate_comparison.png", dpi=300)
+
+extract_and_compare_diffusion_estimates()
