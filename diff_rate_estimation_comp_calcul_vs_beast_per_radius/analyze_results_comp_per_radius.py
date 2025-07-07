@@ -187,20 +187,20 @@ def extract_and_compare_diffusion_estimates(
 
     # Plot comparison
     plt.figure(figsize=(10, 6))
-    plt.plot(grouped["radius"], grouped["mean_calc_diff_rate"], marker='o', label="Var(X)/T Estimate")
-    plt.plot(grouped["radius"], grouped["mean_mean_diff_rate_beast"], marker='s', label="BEAST Estimate")
+    plt.plot(grouped["radius"], grouped["calc_diff_rate_mean"], marker='o', label="Var(X)/T Estimate")
+    plt.plot(grouped["radius"], grouped["mean_diff_rate_beast_mean"], marker='s', label="BEAST Estimate")
     plt.fill_between(
         grouped["radius"],
-        grouped["2.5%_calc_diff_rate"],
-        grouped["97.5%_calc_diff_rate"],
+        grouped["calc_diff_rate_2.5%"],
+        grouped["calc_diff_rate_97.5%"],
         color='blue',
         alpha=0.2,
         label="Var(X)/T 95% CI"
     )
     plt.fill_between(
         grouped["radius"],
-        grouped["2.5%_mean_diff_rate_beast"],
-        grouped["97.5%_mean_diff_rate_beast"],
+        grouped["mean_diff_rate_beast_2.5%"],
+        grouped["mean_diff_rate_beast_97.5%"],
         color='orange',
         alpha=0.2,
         label="BEAST 95% CI"
