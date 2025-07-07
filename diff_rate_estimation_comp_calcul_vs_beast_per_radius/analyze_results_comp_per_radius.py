@@ -3,83 +3,6 @@ import glob
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def extract_and_save_dispersal_stats(burn_in_value=1000000,
-                                     out_summary="diff_rate_summary.tsv",
-                                     out_grouped="diff_rate_summary_grouped.tsv"):
-    results = []
-
-    for directory in os.listdir("."):
-        if not os.path.isdir(directory):
-            continue
-
-        os.chdir(directory)
-        try:
-            parts = directory.split("_")
-            radius = int(parts[0][1:])   # e.g., 'r10' -> 10
-            sim_num = int(parts[1][3:])  # e.g., 'sim3' -> 3
-
-            log_files = glob.glob("*.log")
-            if not log_files:
-                continue
-
-            df = pd.read_csv(log_files[0], comment='#', delimiter='\t')
-            filtered_df = df[df["state"] > burn_in_value]
-
-            # Delete .trees file to save space
-            tree_files = glob.glob("*.trees")
-            for tf in tree_files:
-                os.remove(tf)
-
-            if not filtered_df.empty:
-                results.append({
-                    "radius": radius,
-                    "simulation": sim_num,
-                    "mean": filtered_df["coordinates.diffusionRate"].mean(),
-                    "stdev": filtered_df["coordinates.diffusionRate"].std()
-                })
-        finally:
-            os.chdir("..")
-
-    global_df = pd.DataFrame(results)
-    global_df.to_csv(out_summary, sep="\t", index=False)
-
-    summary_df = (
-        global_df.groupby("radius")["mean"]
-        .agg([
-            ("mean_diffusion_rate", "mean"),
-            ("median_diffusion_rate", "median"),
-            ("quantile_2.5", lambda x: x.quantile(0.025)),
-            ("quantile_97.5", lambda x: x.quantile(0.975))
-        ])
-        .reset_index()
-    )
-    summary_df.to_csv(out_grouped, sep="\t", index=False)
-    return summary_df
-
-summary_df = extract_and_save_dispersal_stats()
-
-# Plot with error bars (quantile range)
-plt.figure(figsize=(10, 6))
-plt.plot(summary_df["radius"], summary_df["mean_diffusion_rate"], marker='o', label="Mean Estimated Diffusion Rate")
-
-# Add shaded area for quantile range
-plt.fill_between(
-    summary_df["radius"],
-    summary_df["quantile_2.5"],
-    summary_df["quantile_97.5"],
-    color='blue',
-    alpha=0.2,
-    label="2.5% - 97.5% Quantile Range"
-)
-
-plt.xlabel("Radius")
-plt.ylabel("Estimated Diffusion Rate")
-plt.title("Estimated Diffusion Rate By Sampling Radius")
-plt.legend()
-plt.grid(True)
-plt.tight_layout()
-plt.savefig("beast_diff_rate_per_radius.png",dpi=300)
-
 def extract_empirical_dispersal(full_output="empirical_dispersal_all.tsv",
                                 grouped_output="empirical_dispersal_grouped.tsv",
                                 moment_output="empirical_dispersal_moments_all.tsv",
@@ -192,7 +115,7 @@ def extract_empirical_dispersal(full_output="empirical_dispersal_all.tsv",
     plt.tight_layout()
     plt.savefig("empirical_dispersal_moments_by_radius.png",dpi=300)
 
-extract_empirical_dispersal()
+#extract_empirical_dispersal()
 
 def extract_and_compare_diffusion_estimates(
     burn_in_fraction=0.1,
