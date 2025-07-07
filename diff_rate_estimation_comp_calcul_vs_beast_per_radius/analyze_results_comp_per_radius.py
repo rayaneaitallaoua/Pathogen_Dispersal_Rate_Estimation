@@ -193,3 +193,99 @@ def extract_empirical_dispersal(full_output="empirical_dispersal_all.tsv",
     plt.savefig("empirical_dispersal_moments_by_radius.png",dpi=300)
 
 extract_empirical_dispersal()
+
+def extract_and_compare_diffusion_estimates(
+    burn_in_fraction=0.1,
+    out_raw="diff_rate_comparison.tsv",
+    out_grouped="diff_rate_comparison_grouped.tsv"):
+    from io import StringIO
+
+    records = []
+
+    for directory in os.listdir("."):
+        if not os.path.isdir(directory):
+            continue
+
+        os.chdir(directory)
+        try:
+            parts = directory.split("_")
+            radius = int(parts[0][1:])   # e.g., 'r10' -> 10
+            sim_num = int(parts[1][3:])  # e.g., 'sim3' -> 3
+
+            # Load GSpace summary
+            gspace_file = glob.glob("*_seq_char.txt")
+            if not gspace_file:
+                continue
+            gspace_df = pd.read_csv(gspace_file[0], sep=r'\s+', header=0)
+            var_x = gspace_df["X"].var()
+
+            # Load BEAST log
+            log_files = glob.glob("*.log")
+            if not log_files:
+                continue
+            with open(log_files[0]) as f:
+                lines = [line for line in f if not line.startswith("Trace") and not line.startswith("#")]
+            log_df = pd.read_csv(StringIO("".join(lines)), sep="\t")
+            log_df["age(root)"] = pd.to_numeric(log_df["age(root)"], errors="coerce")
+            log_df["coordinates.diffusionRate"] = pd.to_numeric(log_df["coordinates.diffusionRate"], errors="coerce")
+            burnin = int(burn_in_fraction * len(log_df))
+            log_df_post = log_df.iloc[burnin:]
+
+            if not log_df_post.empty:
+                mean_age_root = log_df_post["age(root)"].mean()
+                mean_diff_rate = log_df_post["coordinates.diffusionRate"].mean()
+                calc_diff_rate = var_x / mean_age_root if mean_age_root > 0 else None
+
+                records.append({
+                    "radius": radius,
+                    "simulation": sim_num,
+                    "varX": var_x,
+                    "mean_age_root": mean_age_root,
+                    "mean_diff_rate_beast": mean_diff_rate,
+                    "calc_diff_rate": calc_diff_rate
+                })
+        finally:
+            os.chdir("..")
+
+    df = pd.DataFrame(records)
+    df.to_csv(out_raw, sep="\t", index=False)
+
+    grouped = (
+        df.groupby("radius")[["mean_diff_rate_beast", "calc_diff_rate"]]
+        .agg([
+            ("mean", "mean"),
+            ("2.5%", lambda x: x.quantile(0.025)),
+            ("97.5%", lambda x: x.quantile(0.975))
+        ])
+    )
+    grouped.columns = ['_'.join(col).strip() for col in grouped.columns]
+    grouped = grouped.reset_index()
+    grouped.to_csv(out_grouped, sep="\t", index=False)
+
+    # Plot comparison
+    plt.figure(figsize=(10, 6))
+    plt.plot(grouped["radius"], grouped["mean_calc_diff_rate"], marker='o', label="Var(X)/T Estimate")
+    plt.plot(grouped["radius"], grouped["mean_mean_diff_rate_beast"], marker='s', label="BEAST Estimate")
+    plt.fill_between(
+        grouped["radius"],
+        grouped["2.5%_calc_diff_rate"],
+        grouped["97.5%_calc_diff_rate"],
+        color='blue',
+        alpha=0.2,
+        label="Var(X)/T 95% CI"
+    )
+    plt.fill_between(
+        grouped["radius"],
+        grouped["2.5%_mean_diff_rate_beast"],
+        grouped["97.5%_mean_diff_rate_beast"],
+        color='orange',
+        alpha=0.2,
+        label="BEAST 95% CI"
+    )
+    plt.xlabel("Radius")
+    plt.ylabel("Diffusion Rate")
+    plt.title("Comparison of Diffusion Rate Estimates")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig("diffusion_rate_comparison.png", dpi=300)
