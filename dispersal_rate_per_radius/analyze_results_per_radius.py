@@ -4,8 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 def extract_and_save_dispersal_stats(burn_in_value=1000000,
-                                     out_summary="dispersal_summary.tsv",
-                                     out_grouped="dispersal_summary_grouped.tsv"):
+                                     out_summary="diff_rate_summary.tsv",
+                                     out_grouped="diff_rate_summary_grouped.tsv"):
     results = []
 
     for directory in os.listdir("."):
@@ -46,8 +46,8 @@ def extract_and_save_dispersal_stats(burn_in_value=1000000,
     summary_df = (
         global_df.groupby("radius")["mean"]
         .agg([
-            ("mean_dispersal_rate", "mean"),
-            ("median_dispersal_rate", "median"),
+            ("mean_diffusion_rate", "mean"),
+            ("median_diffusion_rate", "median"),
             ("quantile_2.5", lambda x: x.quantile(0.025)),
             ("quantile_97.5", lambda x: x.quantile(0.975))
         ])
@@ -60,7 +60,7 @@ summary_df = extract_and_save_dispersal_stats()
 
 # Plot with error bars (quantile range)
 plt.figure(figsize=(10, 6))
-plt.plot(summary_df["radius"], summary_df["mean_dispersal_rate"], marker='o', label="Mean Estimated Dispersal Rate")
+plt.plot(summary_df["radius"], summary_df["mean_diffusion_rate"], marker='o', label="Mean Estimated Diffusion Rate")
 
 # Add shaded area for quantile range
 plt.fill_between(
@@ -73,12 +73,12 @@ plt.fill_between(
 )
 
 plt.xlabel("Radius")
-plt.ylabel("Estimated Dispersal Rate")
-plt.title("Estimated Dispersal Rate by sampling radius")
+plt.ylabel("Estimated Diffusion Rate")
+plt.title("Estimated Diffusion Rate By Sampling Radius")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("beast_dispersal_rate_per_radius.png",dpi=300)
+plt.savefig("beast_diff_rate_per_radius.png",dpi=300)
 
 def extract_empirical_dispersal(full_output="empirical_dispersal_all.tsv",
                                 grouped_output="empirical_dispersal_grouped.tsv",
