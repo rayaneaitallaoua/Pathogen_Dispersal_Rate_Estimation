@@ -109,7 +109,7 @@ empiricaldispersal = TRUE
     print(f"GSpaceSettings_r_{r}.txt generated with circular sampling in {output_dir}!")
     return sampled_positions
 
-def submit_gspace_slurm_job(gspace_dir="../../GSpace/build/GSpace", job_name="gspace_job", time="00:10:00"):
+def submit_gspace_slurm_job(job_name="gspace_job", time="00:10:00"):
     slurm_script = f"""#!/bin/bash
 #SBATCH -c 1
 #SBATCH --nodes=1
@@ -121,7 +121,7 @@ def submit_gspace_slurm_job(gspace_dir="../../GSpace/build/GSpace", job_name="gs
 #SBATCH -o {job_name}.%j.out
 #SBATCH -e {job_name}.%j.err
 
-srun {gspace_dir}
+srun GSpace
 """
 
     with open("run_gspace.slurm", "w") as f:
@@ -145,7 +145,7 @@ def run_analysis(radii_list, repetitions=10):
                                                      seed=sim+1,
                                                      num_sampled_nodes=nodes_sampled,
                                                      ind_per_node_sampled=ind_per_node)
-            submit_gspace_slurm_job(gspace_dir="../../../GSpace_Dev/build/GSpace", job_name=f"gspace_r_{radius}_sim_{sim}", time="00:10:00")
+            submit_gspace_slurm_job(job_name=f"gspace_r_{radius}_sim_{sim}", time="00:10:00")
 
             os.chdir("..")
 
