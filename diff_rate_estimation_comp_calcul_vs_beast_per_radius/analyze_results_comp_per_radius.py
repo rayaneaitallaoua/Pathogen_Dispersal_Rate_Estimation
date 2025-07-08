@@ -140,4 +140,4 @@ def plot_diffusion_rate_comparison(beast_df, empirical_df):
 
 beast_df = extract_beast_diffusion_rates()
 empirical_df = extract_empirical_diffusion_rates()
-plot_diffusion_rate_comparison(beast_df, empirical_df)
+#plot_diffusion_rate_comparison(beast_df, empirical_df)
