@@ -87,7 +87,7 @@ Ind_Per_Pop=1
 %% DISPERSAL
 Dispersal_Distribution=uniform
 Disp_Dist_Max=1,1
-Total_Emigration_Rate=0.05
+Total_Emigration_Rate=0.9
 
 %%%%%%%% SAMPLE SETTINGS %%%%%%%%%%%%%%%%%%%
 %% Lattice center: {lattice_center} %%
