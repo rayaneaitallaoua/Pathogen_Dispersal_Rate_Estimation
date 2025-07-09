@@ -23,8 +23,9 @@ def extract_beast_diffusion_rates(burn_in_fraction=0.1):
                 lines = [line for line in f if not line.startswith("Trace") and not line.startswith("#")]
             log_df = pd.read_csv(StringIO("".join(lines)), sep="\t")
             log_df["coordinates.diffusionRate"] = pd.to_numeric(log_df["coordinates.diffusionRate"], errors="coerce")
-            burnin = int(burn_in_fraction * len(log_df))
-            log_df_post = log_df.iloc[burnin:]
+            burnin_index = int(burn_in_fraction * len(log_df))
+            state_threshold = log_df["state"].iloc[burnin_index]
+            log_df_post = log_df[log_df["state"] > state_threshold]
 
             if not log_df_post.empty:
                 mean_diff_rate = log_df_post["coordinates.diffusionRate"].mean()
@@ -77,8 +78,9 @@ def extract_empirical_diffusion_rates():
                 lines = [line for line in f if not line.startswith("Trace") and not line.startswith("#")]
             log_df = pd.read_csv(StringIO("".join(lines)), sep="\t")
             log_df["age(root)"] = pd.to_numeric(log_df["age(root)"], errors="coerce")
-            burnin = int(0.1 * len(log_df))
-            log_df_post = log_df.iloc[burnin:]
+            burnin_index = int(0.1 * len(log_df))
+            state_threshold = log_df["state"].iloc[burnin_index]
+            log_df_post = log_df[log_df["state"] > state_threshold]
             if not log_df_post.empty:
                 mean_age_root = log_df_post["age(root)"].mean()
                 calc_diff_rate = var_x / mean_age_root if mean_age_root > 0 else None
