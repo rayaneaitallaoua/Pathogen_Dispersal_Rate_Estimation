@@ -27,6 +27,11 @@ def extract_beast_diffusion_rates(burn_in_fraction=0.1):
             state_threshold = log_df["state"].iloc[burnin_index]
             log_df_post = log_df[log_df["state"] > state_threshold]
 
+            # Delete .trees file to save space
+            tree_files = glob.glob("*.trees")
+            for tf in tree_files:
+                os.remove(tf)
+
             if not log_df_post.empty:
                 mean_diff_rate = log_df_post["coordinates.diffusionRate"].mean()
                 records.append({
@@ -139,34 +144,6 @@ def plot_diffusion_rate_comparison(beast_df, empirical_df):
     plt.grid(True)
     plt.tight_layout()
     plt.savefig("diffusion_rate_comparison.png", dpi=300)
-
-
-# Remove directories with empty .log files and delete .trees files in all subdirectories
-removed_dirs = []
-for directory in os.listdir("."):
-    if not os.path.isdir(directory):
-        continue
-    dir_path = os.path.abspath(directory)
-    os.chdir(dir_path)
-    try:
-        # Delete any .trees file
-        for tf in glob.glob("*.trees"):
-            os.remove(tf)
-
-        # Check for empty .log files
-        empty_logs = [lf for lf in glob.glob("*.log") if os.path.getsize(lf) == 0]
-        if empty_logs:
-            os.chdir("..")
-            os.system(f"rm -rf '{dir_path}'")
-            removed_dirs.append(directory)
-    finally:
-        if os.getcwd() != os.path.abspath("."):
-            os.chdir("..")
-
-# Save removed directories to a text file
-with open("removed_empty_log_dirs.txt", "w") as f:
-    for d in removed_dirs:
-        f.write(d + "\n")
 
 beast_df = extract_beast_diffusion_rates()
 empirical_df = extract_empirical_diffusion_rates()
