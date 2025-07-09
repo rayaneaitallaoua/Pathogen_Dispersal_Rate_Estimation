@@ -19,9 +19,16 @@ def extract_beast_diffusion_rates(burn_in_fraction=0.1):
             log_files = glob.glob("*.log")
             if not log_files:
                 continue
-            with open(log_files[0]) as f:
-                lines = [line for line in f if not line.startswith("Trace") and not line.startswith("#")]
-            log_df = pd.read_csv(StringIO("".join(lines)), sep="\t")
+
+            try:
+                with open(log_files[0]) as f:
+                    lines = [line for line in f if not line.startswith("Trace") and not line.startswith("#")]
+                log_df = pd.read_csv(StringIO("".join(lines)), sep="\t",
+                                     on_bad_lines="error")  # change to "warn" or "skip" to suppress
+            except Exception as e:
+                print(f"Error reading {log_files[0]} in {directory}: {e}")
+                continue
+
             log_df["coordinates.diffusionRate"] = pd.to_numeric(log_df["coordinates.diffusionRate"], errors="coerce")
             burnin_index = int(burn_in_fraction * len(log_df))
             state_threshold = log_df["state"].iloc[burnin_index]
@@ -79,9 +86,15 @@ def extract_empirical_diffusion_rates():
             log_files = glob.glob("*.log")
             if not log_files:
                 continue
-            with open(log_files[0]) as f:
-                lines = [line for line in f if not line.startswith("Trace") and not line.startswith("#")]
-            log_df = pd.read_csv(StringIO("".join(lines)), sep="\t")
+
+            try:
+                with open(log_files[0]) as f:
+                    lines = [line for line in f if not line.startswith("Trace") and not line.startswith("#")]
+                log_df = pd.read_csv(StringIO("".join(lines)), sep="\t",
+                                     on_bad_lines="error")  # change to "warn" or "skip" to suppress
+            except Exception as e:
+                print(f"Error reading {log_files[0]} in {directory}: {e}")
+                continue
             log_df["age(root)"] = pd.to_numeric(log_df["age(root)"], errors="coerce")
             burnin_index = int(0.1 * len(log_df))
             state_threshold = log_df["state"].iloc[burnin_index]
