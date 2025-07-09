@@ -16,8 +16,8 @@ module load java-jdk/11.0.9.1
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --partition=fast
-#SBATCH --mem=4G
-#SBATCH -t 03:00:00
+#SBATCH --mem=8G
+#SBATCH -t 24:00:00
 #SBATCH -J {job_name}
 #SBATCH -o {job_name}.%j.out
 #SBATCH -e {job_name}.%j.err
