@@ -23,7 +23,7 @@ def plot_sampling(lattice_size_x,
                                lattice_size_y,
                                sampled_positions,
                                r,
-                               title='Sampling Visualization'):
+                               title=''):
     """
     Visualize a lattice grid and highlight sampled nodes with a sampling circle.
 
@@ -57,15 +57,17 @@ def plot_sampling(lattice_size_x,
             ax.add_patch(circle)
 
     # Mark center
-    ax.plot(center_x, center_y, 'ko', markersize=6, label='Center')
+    ax.plot(center_x, center_y, 'ko', markersize=6, label='Centre')
 
     # Draw sampling circle
     sampling_circle = plt.Circle((center_x, center_y), r, color='blue', fill=False, linestyle='--', linewidth=1.5, label=f'r = {r}')
     ax.add_patch(sampling_circle)
 
     # Decorations
-    ax.set_xticks(range(lattice_size_x))
-    ax.set_yticks(range(lattice_size_y))
+    #ax.set_xticks(range(lattice_size_x))
+    #ax.set_xticklabels(range(lattice_size_x), rotation='vertical', fontsize=4)
+    #ax.set_yticks(range(lattice_size_y))
+    #ax.set_yticklabels(range(lattice_size_y), fontsize=4)
     ax.grid(True, linestyle='--', alpha=0.3)
     ax.set_title(title)
     plt.xlabel("X")
