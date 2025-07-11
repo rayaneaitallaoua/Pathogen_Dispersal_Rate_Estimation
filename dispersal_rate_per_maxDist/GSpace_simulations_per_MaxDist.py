@@ -114,7 +114,7 @@ def submit_gspace_slurm_job(gspace_dir="../../GSpace_Dev/build/GSpace", job_name
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --partition=fast
-#SBATCH --mem=4G
+#SBATCH --mem=8G
 #SBATCH -t 03:00:00
 #SBATCH -J {job_name}
 #SBATCH -o {job_name}.%j.out
