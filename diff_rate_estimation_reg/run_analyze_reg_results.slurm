@@ -9,5 +9,5 @@
 source ~/.bashrc
 conda activate run_gspace
 
-cd /shared/projects/phylodispsim/results_archive/various_num_of_seqs/500_500_lattice/4seqs
+cd /shared/projects/phylodispsim/Pathogen_Dispersal_Rate_Estimation/dispersal_rate_per_maxDist
 python analyze_reg_results_comp_per_radius.py
