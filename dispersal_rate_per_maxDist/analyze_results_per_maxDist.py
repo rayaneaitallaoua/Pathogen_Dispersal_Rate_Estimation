@@ -60,7 +60,7 @@ summary_df = extract_and_save_dispersal_stats()
 
 # Plot with error bars (quantile range)
 plt.figure(figsize=(10, 6))
-plt.plot(summary_df["disp_dist_max"], summary_df["mean_diffusion_rate"], marker='o', label="Mean Estimated Dispersal Rate")
+plt.plot(summary_df["disp_dist_max"], summary_df["mean_diffusion_rate"], marker='o', label="Mean Estimated Diffusion Rate")
 
 # Add shaded area for quantile range
 plt.fill_between(
@@ -73,8 +73,8 @@ plt.fill_between(
 )
 
 plt.xlabel("Max Dispersal Distance")
-plt.ylabel("Estimated Dispersal Rate")
-plt.title("Estimated Dispersal Rate by Maximal Dispersal Distance")
+plt.ylabel("Estimated Diffusion Rate")
+plt.title("Estimated Diffusion Rate by Maximal Dispersal Distance")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
