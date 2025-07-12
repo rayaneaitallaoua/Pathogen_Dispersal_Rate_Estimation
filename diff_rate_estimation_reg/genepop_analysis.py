@@ -20,7 +20,7 @@ MantelPermutations=0"""
 
 def convert_fasta_to_genepop(subdir_path):
     fasta_file = None
-    for f in os.listdir(subdir_path) and subdir.startswith("dist"):
+    for f in os.listdir(subdir_path):
         if f.endswith('.fa'):
             fasta_file = f
             break
@@ -45,7 +45,8 @@ def convert_fasta_to_genepop(subdir_path):
         if len(header_parts) < 3:
             print(f"Invalid header format in {rec.id}")
             continue
-        x, y = header_parts[9], header_parts[10]
+        # ALWAYS ADAPT TO HEADER FORMAT
+        x, y = header_parts[10], header_parts[11]
         output_lines.append("pop")
         nt_seq = ' '.join([nt_code.get(nuc.upper(), "00") for nuc in rec.seq])
         output_lines.append(f"{x} {y} , {nt_seq}")
@@ -105,6 +106,7 @@ for subdir in os.listdir(os.getcwd()):
             job_name = f"genepop_{os.path.basename(subdir_path)}"
             os.chdir(subdir_path)
             submit_genepop_slurm_job(job_name)
+            #subprocess.run("genepop")
             os.chdir("..")
             slurm_success += 1
         except Exception as e:

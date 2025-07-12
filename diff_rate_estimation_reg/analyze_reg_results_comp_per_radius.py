@@ -28,9 +28,11 @@ def aggregate_slopes():
         if os.path.isdir(directory):
             os.chdir(directory)
             try:
-                parts = directory.split("_")
-                radius = int(parts[0][1:])  # e.g., 'r10' -> 10
-                sim_num = int(parts[1][3:])  # e.g., 'sim3' -> 3
+                match = re.match(r"dist(\d+)_sim(\d+)", directory)
+                if not match:
+                    print(f"Skipping directory {directory}: name does not match expected format.")
+                    continue
+                radius, sim_num = map(int, match.groups())
 
                 # Load iso file
                 iso_file = glob.glob("*.ISO")
