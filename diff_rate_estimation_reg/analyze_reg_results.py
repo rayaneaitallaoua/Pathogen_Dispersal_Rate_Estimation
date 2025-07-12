@@ -32,7 +32,7 @@ def aggregate_slopes():
                 if not match:
                     print(f"Skipping directory {directory}: name does not match expected format.")
                     continue
-                radius, sim_num = map(int, match.groups())
+                max_distance, sim_num = map(int, match.groups())
 
                 # Load iso file
                 iso_file = glob.glob("*.ISO")
@@ -41,7 +41,7 @@ def aggregate_slopes():
 
                 try:
                     result = extract_slope_from_iso(iso_file[0])
-                    results.append((radius, *result))
+                    results.append((max_distance, *result))
 
                 except Exception as e:
                     print(f"Error reading {iso_file[0]} in {directory}: {e}")
@@ -51,11 +51,11 @@ def aggregate_slopes():
                 os.chdir("..")
 
 
-    df = pd.DataFrame(results, columns=["radius", "slope", "ci_lower", "ci_upper"])
+    df = pd.DataFrame(results, columns=["max_distance", "slope", "ci_lower", "ci_upper"])
 
     df.to_csv("genepop_results.tsv", sep='\t', index=False)
 
-    grouped = df.groupby("radius")["slope"].agg(["mean", "median", lambda x: x.quantile(0.025), lambda x: x.quantile(0.975)])
+    grouped = df.groupby("max_distance")["slope"].agg(["mean", "median", lambda x: x.quantile(0.025), lambda x: x.quantile(0.975)])
     grouped.columns = ["mean", "median", "quantile_2.5", "quantile_97.5"]
     grouped.to_csv("genepop_slope_summary.tsv", sep='\t')
 
