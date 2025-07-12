@@ -10,4 +10,4 @@ source ~/.bashrc
 conda activate run_gspace
 
 cd /shared/projects/phylodispsim/Pathogen_Dispersal_Rate_Estimation/dispersal_rate_per_maxDist
-python analyze_reg_results_comp_per_radius.py
+python analyze_reg_results.py
