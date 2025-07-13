@@ -4,8 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 def extract_and_save_dispersal_stats(burn_in_value=1000000,
-                                     out_summary="diff_rate_summary.tsv",
-                                     out_grouped="diff_rate_summary_grouped.tsv"):
+                                     out_summary="beast_data.tsv",
+                                     out_grouped="beast_data_grouped.tsv"):
     results = []
 
     for directory in os.listdir("."):
