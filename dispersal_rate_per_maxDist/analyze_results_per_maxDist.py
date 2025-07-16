@@ -15,8 +15,12 @@ def extract_and_save_dispersal_stats(burn_in_value=1000000,
         os.chdir(directory)
         try:
             parts = directory.split("_")
-            disp_dist_max = int(parts[0][4:])   # e.g., 'dist10' -> 10
-            sim_num = int(parts[1][3:])  # e.g., 'sim3' -> 3
+            try:
+                disp_dist_max = int(parts[0][4:])   # e.g., 'dist10' -> 10
+                sim_num = int(parts[1][3:])  # e.g., 'sim3' -> 3
+            except (IndexError, ValueError):
+                print(f"Skipping directory with unexpected name: {directory}")
+                continue
 
             log_files = glob.glob("*.log")
             if not log_files:
@@ -95,8 +99,12 @@ def extract_empirical_dispersal(full_output="empirical_dispersal_all.tsv",
         os.chdir(directory)
         try:
             parts = directory.split("_")
-            disp_dist_max = int(parts[0][4:])   # e.g., 'dist10' -> 10
-            sim_num = int(parts[1][3:])  # e.g., 'sim3' -> 3
+            try:
+                disp_dist_max = int(parts[0][4:])   # e.g., 'dist10' -> 10
+                sim_num = int(parts[1][3:])  # e.g., 'sim3' -> 3
+            except (IndexError, ValueError):
+                print(f"Skipping directory with unexpected name: {directory}")
+                continue
 
             for file in os.listdir("."):
                 if file.endswith("_GSpace_param_summary.txt"):
@@ -192,4 +200,4 @@ def extract_empirical_dispersal(full_output="empirical_dispersal_all.tsv",
     plt.tight_layout()
     plt.savefig("empirical_dispersal_moments_by_dist.png",dpi=300)
 
-extract_empirical_dispersal()
+#extract_empirical_dispersal()
