@@ -11,7 +11,7 @@ ind_per_node = 1
 latt_size_X = 500
 latt_size_Y = 500
 repetitions = 100
-dispersal_max_values = [(1, 1), (3, 3), (5, 5), (10, 10), (20,20), (30,30), (50, 50)]
+dispersal_max_values = [(7, 7)]
 
 def generate_gspace_settings_circular_sample(output_dir=".",
                                              r=3,
