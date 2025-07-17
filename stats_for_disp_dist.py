@@ -5,24 +5,29 @@ from scipy.stats import f_oneway
 
 # Load data
 beast_data = pd.read_csv("/Users/ayoubrayaneaitallaoua/Desktop/IFB_analysis_result_archive/various_max_disp_dist/500_500_lattice/beast_data.tsv", sep="\t")
+bd_data = pd.read_csv("/Users/ayoubrayaneaitallaoua/Desktop/IFB_analysis_result_archive/various_max_disp_dist/500_500_lattice/empirical_diffusion_all.tsv", sep="\t")
 genepop_data = pd.read_csv("/Users/ayoubrayaneaitallaoua/Desktop/IFB_analysis_result_archive/various_max_disp_dist/500_500_lattice/genepop_results.tsv", sep="\t")
-emp_data = pd.read_csv("/Users/ayoubrayaneaitallaoua/Desktop/IFB_analysis_result_archive/various_max_disp_dist/500_500_lattice/empirical_diffusion_all.tsv", sep="\t")
 
+# Clean and rename
 beast_data = beast_data.rename(columns={"disp_dist_max": "max_disp_dist", "mean": "estimation"})
-emp_data = emp_data.rename(columns={"max_distance": "max_disp_dist", "calc_diff_rate": "estimation"})
-genepop_data = genepop_data.rename(columns={"max_distance": "max_disp_dist", "slope": "estimation"})
-
-
 beast_data["method"] = "BEAST"
-emp_data["method"] = "Empirical"
-genepop_data["method"] = "Regression"
 
-genepop_data["simulation"] = genepop_data.groupby("max_disp_dist").cumcount() + 1
+bd_data = bd_data.rename(columns={"max_distance": "max_disp_dist", "calc_diff_rate": "estimation"})
+bd_data["method"] = "Brownian Diffusion"
+
+# Split genepop into slope and inv_slope datasets
+genepop_slope = genepop_data[["max_distance", "slope", "ci_lower", "ci_upper"]].copy()
+genepop_slope = genepop_slope.rename(columns={"max_distance": "max_disp_dist", "slope": "estimation"})
+genepop_slope["method"] = "Regression_slope"
+
+genepop_inv = genepop_data[["max_distance", "inv_slope", "inv_ci_lower", "inv_ci_upper"]].copy()
+genepop_inv = genepop_inv.rename(columns={"max_distance": "max_disp_dist", "inv_slope": "estimation"})
+genepop_inv["method"] = "Regression_invSlope"
 
 # Combine all
-combined_df = pd.concat([beast_data, emp_data, genepop_data], ignore_index=True)
-combined_df = combined_df[["max_disp_dist", "simulation", "method", "estimation"]]
-combined_df = combined_df.sort_values(by=["method", "max_disp_dist", "simulation"], ignore_index=True)
+combined_df = pd.concat([beast_data, bd_data, genepop_slope, genepop_inv], ignore_index=True)
+combined_df = combined_df[["max_disp_dist", "method", "estimation"]]
+combined_df = combined_df.sort_values(by=["method", "max_disp_dist"], ignore_index=True)
 
 combined_df.to_csv("combined_data.tsv", index=False, sep="\t")
 
@@ -52,6 +57,22 @@ for method in combined_df["method"].unique():
         output.append("# ✅ Significant variation within the method" if p < 0.05 else "# ❌ No significant variation within method")
 output.append("")
 
+# Linear model: estimation ~ max_disp_dist (per method)
+output.append("=== Linear Model: estimation ~ max_disp_dist (within each method) ===")
+output.append("# Question: Does a linear trend exist between estimation and max dispersal distance for each method?")
+for method in combined_df["method"].unique():
+    subset = combined_df[combined_df["method"] == method].copy()
+    if subset["max_disp_dist"].dtype.name == "category":
+        subset["max_disp_dist"] = subset["max_disp_dist"].astype(float)
+    X = sm.add_constant(subset["max_disp_dist"])
+    y = subset["estimation"]
+    model = sm.OLS(y, X).fit()
+    slope = model.params["max_disp_dist"]
+    pval = model.pvalues["max_disp_dist"]
+    output.append(f"Method: {method} --> slope = {slope:.4f}, p = {pval:.4e}")
+    output.append("# ✅ Significant linear trend" if pval < 0.05 else "# ❌ No significant linear trend")
+output.append("")
+
 # Save output
-with open("stats.txt", "w") as f:
+with open("stats_for_max_disp_dist.txt", "w") as f:
     f.writelines(line + "\n" for line in output)
