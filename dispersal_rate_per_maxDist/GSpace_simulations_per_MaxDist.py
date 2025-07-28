@@ -6,12 +6,12 @@ import subprocess
 
 mcmc_chain_length = 10000000
 g_mut_rate = 1E-6
-nodes_sampled = 50
+nodes_sampled = 4
 ind_per_node = 1
 latt_size_X = 500
 latt_size_Y = 500
 repetitions = 100
-dispersal_max_values = [(7, 7)]
+dispersal_max_values = [(1, 1), (3, 3), (5, 5), (10, 10), (20,20), (30,30), (50, 50)]
 
 def generate_gspace_settings_circular_sample(output_dir=".",
                                              r=3,
@@ -108,7 +108,7 @@ empiricaldispersal = TRUE
     print(f"GSpaceSettings.txt for maxDist = {disp_dist_max[0]}_{disp_dist_max[1]} generated with circular sampling in {output_dir}!")
     return sampled_positions
 
-def submit_gspace_slurm_job(gspace_dir="../../GSpace_Dev/build/GSpace", job_name="gspace_job", time="00:10:00"):
+def submit_gspace_slurm_job(job_name="gspace_job"):
     slurm_script = f"""#!/bin/bash
 #SBATCH -c 1
 #SBATCH --nodes=1
@@ -120,7 +120,7 @@ def submit_gspace_slurm_job(gspace_dir="../../GSpace_Dev/build/GSpace", job_name
 #SBATCH -o {job_name}.%j.out
 #SBATCH -e {job_name}.%j.err
 
-srun {gspace_dir}
+srun GSpace
 """
 
     with open("run_gspace.slurm", "w") as f:
@@ -148,7 +148,7 @@ def run_analysis(disp_max_list, num_repetitions=1):
                 disp_dist_max=(dx, dy)
             )
 
-            submit_gspace_slurm_job(gspace_dir="../../../GSpace_Dev/build/GSpace", job_name=f"gspace_d{dx}_sim_{sim}", time="00:10:00")
+            submit_gspace_slurm_job(job_name=f"gspace_d{dx}_sim_{sim}")
 
             os.chdir("..")
 
