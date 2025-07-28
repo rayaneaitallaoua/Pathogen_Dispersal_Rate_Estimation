@@ -4,6 +4,10 @@ from io import StringIO
 import pandas as pd
 import glob
 
+# using var(x) / TMRCA
+# with x being positions from GSpace simulation
+# and TMRCA being root.age() mean from BEAST
+
 def extract_empirical_diffusion_rates():
     records = []
     for directory in os.listdir("."):
@@ -66,7 +70,7 @@ def extract_empirical_diffusion_rates():
         finally:
             os.chdir("..")
     df = pd.DataFrame(records)
-    df.to_csv("empirical_diffusion_all.tsv", sep="\t", index=False)
+    df.to_csv("non_phylo_bd_all.tsv", sep="\t", index=False)
 
     grouped = (
         df.groupby("max_distance")["calc_diff_rate"]
@@ -78,7 +82,7 @@ def extract_empirical_diffusion_rates():
         ])
         .reset_index()
     )
-    grouped.to_csv("empirical_diffusion_grouped.tsv", sep="\t", index=False)
+    grouped.to_csv("non_phylo_bd_grouped.tsv", sep="\t", index=False)
     return df
 
 extract_empirical_diffusion_rates()

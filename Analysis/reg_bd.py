@@ -30,8 +30,8 @@ def load_sequences_and_coords(fasta_path):
             continue
         try:
             # for radius
-            # x = float(header_parts[9])
-            # y = float(header_parts[10])
+#            x = float(header_parts[9])
+#            y = float(header_parts[10])
 
             # for max disp dist
             x = float(header_parts[10])
@@ -60,7 +60,7 @@ def compute_pairwise_regression(sequences, coords):
         print("Warning: insufficient variation — skipping regression.")
         return (float("nan"),)*4
 
-    # Inverse regression
+    # regression (x, y)
     slope, _, r_value, p_value, std_err = linregress(df["gen_d"], df["geo_d2"])
 
     return slope, r_value**2, p_value, std_err
