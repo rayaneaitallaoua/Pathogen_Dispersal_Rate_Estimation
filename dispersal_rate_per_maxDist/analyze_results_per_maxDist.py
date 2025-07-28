@@ -60,6 +60,11 @@ def extract_and_save_dispersal_stats(burn_in_value=1000000,
     summary_df.to_csv(out_grouped, sep="\t", index=False)
     return summary_df
 
+extract_and_save_dispersal_stats()
+
+
+# GRAPH
+'''
 summary_df = extract_and_save_dispersal_stats()
 
 # Plot with error bars (quantile range)
@@ -83,7 +88,11 @@ plt.legend()
 plt.grid(True)
 plt.tight_layout()
 plt.savefig("beast_diff_rate_per_maxDispDist.png",dpi=300)
+'''
 
+# def extract_empirical_dispersal BELOW
+
+'''
 def extract_empirical_dispersal(full_output="empirical_dispersal_all.tsv",
                                 grouped_output="empirical_dispersal_grouped.tsv",
                                 moment_output="empirical_dispersal_moments_all.tsv",
@@ -200,4 +209,5 @@ def extract_empirical_dispersal(full_output="empirical_dispersal_all.tsv",
     plt.tight_layout()
     plt.savefig("empirical_dispersal_moments_by_dist.png",dpi=300)
 
-#extract_empirical_dispersal()
+extract_empirical_dispersal()
+'''
