@@ -1,6 +1,5 @@
 import os
 import subprocess
-
 from Bio import SeqIO
 
 def write_genepop_settings(subdir):
@@ -46,7 +45,10 @@ def convert_fasta_to_genepop(subdir_path):
             print(f"Invalid header format in {rec.id}")
             continue
         # ALWAYS ADAPT TO HEADER FORMAT
+        # for disp dist:
         x, y = header_parts[10], header_parts[11]
+
+        # for radius (I should add em later):
         output_lines.append("pop")
         nt_seq = ' '.join([nt_code.get(nuc.upper(), "00") for nuc in rec.seq])
         output_lines.append(f"{x} {y} , {nt_seq}")
@@ -59,8 +61,7 @@ def convert_fasta_to_genepop(subdir_path):
 
 # --- SLURM integration ---
 def submit_genepop_slurm_job(job_name="genepop_job"):
-    """Submits a SLURM job for Genepop analysis in the current directory.
-    The job will run 'genepop.txt'."""
+
     slurm_script = f"""#!/bin/bash
 #SBATCH --job-name={job_name}
 #SBATCH --output=genepop_%j.out
