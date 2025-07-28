@@ -9,4 +9,4 @@
 source ~/.bashrc
 conda activate run_gspace
 
-python analyze_reg_results.py
+python non_phylo_bd.py

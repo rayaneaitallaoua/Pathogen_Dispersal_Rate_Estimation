@@ -9,5 +9,4 @@
 source ~/.bashrc
 conda activate run_gspace
 
-cd /shared/projects/phylodispsim/Pathogen_Dispersal_Rate_Estimation/dispersal_rate_per_maxDist
-python analyze_empirical_diff.py
+python reg_bd.py
