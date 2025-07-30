@@ -51,7 +51,7 @@ four_seqs_regression_bd["method"] = "Brownian Diffusion - Regression"
 four_seqs_regression_bd["sample size"] = "4"
 
 four_seqs_ibd_reg = four_seqs_ibd_reg.rename(columns={"median": "estimation", "max_distance": "max disp dist"})
-four_seqs_ibd_reg["method"] = "IBD - regression invSlope"
+four_seqs_ibd_reg["method"] = "IBD - regression"
 four_seqs_ibd_reg["sample size"] = "4"
 
 #### 20 SEQS ###
@@ -69,7 +69,7 @@ twenty_seqs_regression_bd["method"] = "Brownian Diffusion - Regression"
 twenty_seqs_regression_bd["sample size"] = "20"
 
 twenty_seqs_ibd_reg = twenty_seqs_ibd_reg.rename(columns={"median": "estimation", "max_distance": "max disp dist"})
-twenty_seqs_ibd_reg["method"] = "IBD - regression invSlope"
+twenty_seqs_ibd_reg["method"] = "IBD - regression"
 twenty_seqs_ibd_reg["sample size"] = "20"
 
 ### 50 SEQS ###
@@ -87,7 +87,7 @@ fifty_seqs_regression_bd["method"] = "Brownian Diffusion - Regression"
 fifty_seqs_regression_bd["sample size"] = "50"
 
 fifty_seqs_ibd_reg = fifty_seqs_ibd_reg.rename(columns={"median": "estimation", "max_distance": "max disp dist"})
-fifty_seqs_ibd_reg["method"] = "IBD - regression invSlope"
+fifty_seqs_ibd_reg["method"] = "IBD - regression"
 fifty_seqs_ibd_reg["sample size"] = "50"
 
 
@@ -126,13 +126,13 @@ output_all.append("")
 """
 
 # Linear model: estimation ~ max_disp_dist (per method per sample size)
-output_all.append("=== Linear Model: estimation ~ max_disp_dist (within each method) ===")
+output_all.append("=== Linear Model: estimation ~ max_disp_dist (within each method) ALL DATA ===")
 
 for method in combined_df["method"].unique():
     output_all.append(f"\n#### For method {method} ###")
     for sample_size in combined_df["sample size"].unique():
         output_all.append(f"### For sample size = {sample_size} ###")
-        subset = combined_df[combined_df["method"] == method].copy()
+        subset = combined_df[(combined_df["method"] == method) & (combined_df["sample size"] == sample_size)].copy()
         X = sm.add_constant(subset["max disp dist"])
         y = subset["estimation"]
         model = sm.OLS(y, X).fit()
@@ -142,11 +142,6 @@ for method in combined_df["method"].unique():
         output_all.append("# ✅ Significant linear trend" if pval < 0.05 else "# ❌ No significant linear trend")
 
 output_all.append("")
-
-# Save output_all
-
-with open("./stats_for_max_disp_dist_all.txt", "w") as f:
-    f.writelines(line + "\n" for line in output_all)
 
 
 # Construct slope/p-value summary table from combined_df grouped by method and sample size
@@ -254,3 +249,27 @@ plt.xlabel("Number of sequences")
 plt.tight_layout()
 plt.savefig("plots/inf_20_data/slope_heatmap_max_disp_dist_lt20.png", dpi=300)
 plt.close()
+
+# Linear model: estimation ~ max_disp_dist (per method per sample size)
+output_all.append("=== Linear Model: estimation ~ max_disp_dist (within each method) Max Disp Dist < 20 ===")
+
+for method in subset_df["method"].unique():
+    output_all.append(f"\n#### For method {method} ###")
+    for sample_size in subset_df["sample size"].unique():
+        output_all.append(f"### For sample size = {sample_size} ###")
+        subset = subset_df[(subset_df["method"] == method) & (subset_df["sample size"] == sample_size)].copy()
+        X = sm.add_constant(subset["max disp dist"])
+        y = subset["estimation"]
+        model = sm.OLS(y, X).fit()
+        slope = model.params["max disp dist"]
+        pval = model.pvalues["max disp dist"]
+        output_all.append(f"Method: {method} --> slope = {slope:.4e}, p = {pval:.4e}")
+        output_all.append("# ✅ Significant linear trend" if pval < 0.05 else "# ❌ No significant linear trend")
+
+output_all.append("")
+
+# Save output_all
+
+with open("./stats_for_max_disp_dist_all.txt", "w") as f:
+    f.writelines(line + "\n" for line in output_all)
+

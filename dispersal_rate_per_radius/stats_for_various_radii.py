@@ -103,7 +103,7 @@ fit_linear_model(twenty_seqs_genepop_reg_inv, "InvRegression (20 seqs)")
 fit_linear_model(fifty_seqs_genepop_reg_inv, "InvRegression (50 seqs)")
 
 
-with open("../stats_for_radii.txt", "w") as f:
+with open("./stats_for_radii.txt", "w") as f:
     f.write("\n".join(output_lines))
 
 #======= FIGURES =======
@@ -115,9 +115,9 @@ for method_df, label in [
     (four_seqs_beast, "BEAST (4 seqs)"),
     (twenty_seqs_beast, "BEAST (20 seqs)"),
     (fifty_seqs_beast, "BEAST (50 seqs)"),
-    (four_seqs_bd, "BD - non phylogenetic (4 seqs)"),
-    (twenty_seqs_bd, "BD - non phylogenetic (20 seqs)"),
-    (fifty_seqs_bd, "BD - non phylogenetic (50 seqs)"),
+    (four_seqs_bd, "BD - analytical (4 seqs)"),
+    (twenty_seqs_bd, "BD - analytical (20 seqs)"),
+    (fifty_seqs_bd, "BD - analytical (50 seqs)"),
     (four_seqs_regression_bd, "BD - regression (4 seqs)"),
     (twenty_seqs_regression_bd, "BD - regression (20 seqs)"),
     (fifty_seqs_regression_bd, "BD - regression (50 seqs)"),
