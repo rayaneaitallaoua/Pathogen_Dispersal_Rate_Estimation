@@ -49,6 +49,7 @@ In each experiment directory are the following type of files:
    - GSpace simulation script.
    - BEAST configuration XML script.
    - BEAST Analysis script.
+   - Genepop Analysis script
    - Results Analysis
    - A plots script
    - A statistical analysis script
@@ -59,6 +60,7 @@ In each experiment directory are the following type of files:
 - Python 3.9
 - Java-jdk 11.0.9.1
 - GSpace 
+- Genepop v4.8.3
 - BEAST v10.5.0-beta5
 - BEAGLE v4.0.1
 - Additional Python libraries (see `environment.yml`)
@@ -69,9 +71,6 @@ In each experiment directory are the following type of files:
 3. Rousset F, et al. (2008). *genepop’007: a complete re-implementation of the genepop software for Windows and Linux.* [PubMed](https://pubmed.ncbi.nlm.nih.gov/21585727/)
 3. AIT ALLAOUA, R. (2024). “Projet bibliographique M1 : Estimer la vitesse de dispersion de pathogènes à partir de la comparaison de séquences génétiques géo-référencées”. [Rapport](https://github.com/rayaneaitallaoua/Pathogen_Dispersal_Rate_Estimation/blob/main/Projet_biblio__Rayane_2024.pdf)
 4. AIT ALLAOUA, R. (2025). “Rapport de stage M1 : Estimer la vitesse de dispersion de pathogènes à partir de la comparaison de séquences génétiques géo-référencées”.[Rapport](https://github.com/rayaneaitallaoua/Pathogen_Dispersal_Rate_Estimation/blob/main/Projet_biblio__Rayane_2024.pdf)
-
-## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Contact
 For questions or collaborations, please contact:  
