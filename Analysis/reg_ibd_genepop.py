@@ -30,6 +30,7 @@ def aggregate_slopes():
         if os.path.isdir(directory):
             os.chdir(directory)
             try:
+                # adapt pattern for radius
                 match = re.match(r"dist(\d+)_sim(\d+)", directory)
                 if not match:
                     print(f"Skipping directory {directory}: name does not match expected format.")
