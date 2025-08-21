@@ -1,42 +1,100 @@
 import os
+import re
 import glob
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def extract_and_save_dispersal_stats(burn_in_value=1000000,
-                                     out_summary="beast_data.tsv",
-                                     out_grouped="beast_data_grouped.tsv"):
+"""
+============================================================
+ BEAST diffusion rate extractor (phylogenetic BD)
+============================================================
+
+Reads BEAST .log files under subdirectories and summarizes
+the posterior of `coordinates.diffusionRate` after burn-in.
+
+Supports two directory schemes via MODE:
+
+1) Sampling Radius experiment
+   - Subdirectories: r{radius}_sim{rep}   e.g., r10_sim3
+   - Grouping key:  radius
+   - X-axis label:  "Sampling Radius"
+   - Figure name:   beast_diff_rate_per_radius.png
+
+2) Maximal Dispersal Distance experiment
+   - Subdirectories: dist{maxDist}_sim{rep}  e.g., dist10_sim3
+   - Grouping key:   disp_dist_max
+   - X-axis label:   "Max Dispersal Distance"
+   - Figure name:    beast_diff_rate_per_maxDispDist.png
+============================================================
+"""
+
+MODE = "maxdist"  # <-- set to "radius" or "maxdist"
+
+if MODE == "radius":
+    DIR_PATTERN = r"r(\d+)_sim(\d+)"
+    KEY_NAME = "radius"
+    XLABEL = "Sampling Radius"
+    TITLE = "Estimated Diffusion Rate by Sampling Radius"
+    FIG_NAME = "beast_diff_rate_per_radius.png"
+elif MODE == "maxdist":
+    DIR_PATTERN = r"dist(\d+)_sim(\d+)"
+    KEY_NAME = "disp_dist_max"
+    XLABEL = "Max Dispersal Distance"
+    TITLE = "Estimated Diffusion Rate by Maximal Dispersal Distance"
+    FIG_NAME = "beast_diff_rate_per_maxDispDist.png"
+else:
+    raise ValueError("MODE must be 'radius' or 'maxdist'")
+
+def extract_and_save_dispersal_stats(
+    burn_in_value=1_000_000,
+    out_summary="beast_data.tsv",
+    out_grouped="beast_data_grouped.tsv"
+):
     results = []
 
     for directory in os.listdir("."):
         if not os.path.isdir(directory):
             continue
 
+        m = re.match(DIR_PATTERN, directory)
+        if not m:
+            # not part of the experiment layout
+            continue
+
+        key_value, sim_num = map(int, m.groups())
+
         os.chdir(directory)
         try:
-            parts = directory.split("_")
-            try:
-                disp_dist_max = int(parts[0][4:])   # e.g., 'dist10' -> 10
-                sim_num = int(parts[1][3:])  # e.g., 'sim3' -> 3
-            except (IndexError, ValueError):
-                print(f"Skipping directory with unexpected name: {directory}")
-                continue
-
             log_files = glob.glob("*.log")
             if not log_files:
                 continue
 
-            df = pd.read_csv(log_files[0], comment='#', delimiter='\t')
+            # deterministic choice if multiple logs exist
+            log_file = sorted(log_files, key=os.path.getmtime)[-1]
+
+            df = pd.read_csv(log_file, comment="#", delimiter="\t")
+            if "state" not in df.columns or "coordinates.diffusionRate" not in df.columns:
+                # malformed log, skip
+                continue
+
+            # numeric coercion (in case of mixed types)
+            df["state"] = pd.to_numeric(df["state"], errors="coerce")
+            df["coordinates.diffusionRate"] = pd.to_numeric(
+                df["coordinates.diffusionRate"], errors="coerce"
+            )
+
             filtered_df = df[df["state"] > burn_in_value]
 
-            # Delete .trees file to save space
-            tree_files = glob.glob("*.trees")
-            for tf in tree_files:
-                os.remove(tf)
+            # Delete .trees files to save space (best-effort)
+            for tf in glob.glob("*.trees"):
+                try:
+                    os.remove(tf)
+                except OSError:
+                    pass
 
             if not filtered_df.empty:
                 results.append({
-                    "disp_dist_max": disp_dist_max,
+                    KEY_NAME: key_value,
                     "simulation": sim_num,
                     "mean": filtered_df["coordinates.diffusionRate"].mean(),
                     "stdev": filtered_df["coordinates.diffusionRate"].std()
@@ -47,8 +105,12 @@ def extract_and_save_dispersal_stats(burn_in_value=1000000,
     global_df = pd.DataFrame(results)
     global_df.to_csv(out_summary, sep="\t", index=False)
 
+    if global_df.empty:
+        print("No valid BEAST results found; nothing to summarize/plot.")
+        return pd.DataFrame()
+
     summary_df = (
-        global_df.groupby("disp_dist_max")["mean"]
+        global_df.groupby(KEY_NAME)["mean"]
         .agg([
             ("mean_diffusion_rate", "mean"),
             ("median_diffusion_rate", "median"),
@@ -62,144 +124,25 @@ def extract_and_save_dispersal_stats(burn_in_value=1000000,
 
 summary_df = extract_and_save_dispersal_stats()
 
-# Plot with error bars (quantile range)
-plt.figure(figsize=(10, 6))
-plt.plot(summary_df["disp_dist_max"], summary_df["mean_diffusion_rate"], marker='o', label="Mean Estimated Diffusion Rate")
+# Plot with quantile band if we have data
+if not summary_df.empty:
+    plt.figure(figsize=(10, 6))
+    plt.plot(summary_df[KEY_NAME], summary_df["mean_diffusion_rate"],
+             marker='o', label="Mean Estimated Diffusion Rate")
 
-# Add shaded area for quantile range
-plt.fill_between(
-    summary_df["disp_dist_max"],
-    summary_df["quantile_2.5"],
-    summary_df["quantile_97.5"],
-    color='blue',
-    alpha=0.2,
-    label="2.5% - 97.5% Quantile Range"
-)
+    plt.fill_between(
+        summary_df[KEY_NAME],
+        summary_df["quantile_2.5"],
+        summary_df["quantile_97.5"],
+        alpha=0.2,
+        label="2.5% - 97.5% Quantile Range"
+    )
 
-plt.xlabel("Max Dispersal Distance")
-plt.ylabel("Estimated Diffusion Rate")
-plt.title("Estimated Diffusion Rate by Maximal Dispersal Distance")
-plt.legend()
-plt.grid(True)
-plt.tight_layout()
-plt.savefig("beast_diff_rate_per_maxDispDist.png",dpi=300)
-
-# def extract_empirical_dispersal BELOW
-
-# def extract_empirical_dispersal(full_output="empirical_dispersal_all.tsv",
-#                                 grouped_output="empirical_dispersal_grouped.tsv",
-#                                 moment_output="empirical_dispersal_moments_all.tsv",
-#                                 moment_grouped_output="empirical_dispersal_moments_grouped.tsv"):
-#
-#     empirical_dispersal_data = []
-#     empirical_moments_data = []
-#
-#     for directory in os.listdir("."):
-#         if not os.path.isdir(directory):
-#             continue
-#
-#         os.chdir(directory)
-#         try:
-#             parts = directory.split("_")
-#             try:
-#                 disp_dist_max = int(parts[0][4:])   # e.g., 'dist10' -> 10
-#                 sim_num = int(parts[1][3:])  # e.g., 'sim3' -> 3
-#             except (IndexError, ValueError):
-#                 print(f"Skipping directory with unexpected name: {directory}")
-#                 continue
-#
-#             for file in os.listdir("."):
-#                 if file.endswith("_GSpace_param_summary.txt"):
-#                     with open(file, "r") as f:
-#                         lines = f.readlines()
-#
-#                     # Extract dispersal distribution
-#                     start_idx = None
-#                     for i, line in enumerate(lines):
-#                         if line.strip().startswith("Empirical dispersal distribution"):
-#                             start_idx = i + 1
-#                             break
-#
-#                     if start_idx is not None:
-#                         for j in range(start_idx, len(lines)):
-#                             line = lines[j].strip()
-#                             if not line or line.startswith("#") or line.startswith("%%"):
-#                                 break
-#                             parts = line.split()
-#                             if len(parts) != 3:
-#                                 continue
-#                             step, freqX, freqY = parts
-#                             empirical_dispersal_data.append({
-#                                 "disp_dist_max": disp_dist_max,
-#                                 "simulation": sim_num,
-#                                 "step": int(step),
-#                                 "freqX": float(freqX),
-#                                 "freqY": float(freqY)
-#                             })
-#
-#                     # Extract dispersal moments
-#                     meanX = meanY = varX = varY = skewX = skewY = kurtX = kurtY = None
-#                     for line in lines:
-#                         if line.startswith("Empirical dispersal mean"):
-#                             meanX, meanY = map(float, line.split(":")[1].strip().split())
-#                         elif line.startswith("Empirical dispersal sigma2"):
-#                             varX, varY = map(float, line.split(":")[1].strip().split())
-#                         elif line.startswith("Empirical dispersal skewness"):
-#                             skewX, skewY = map(float, line.split(":")[1].strip().split())
-#                         elif line.startswith("Empirical dispersal kurtosis"):
-#                             kurtX, kurtY = map(float, line.split(":")[1].strip().split())
-#
-#                     empirical_moments_data.append({
-#                         "disp_dist_max": disp_dist_max,
-#                         "simulation": sim_num,
-#                         "meanX": meanX,
-#                         "meanY": meanY,
-#                         "varX": varX,
-#                         "varY": varY,
-#                         "skewX": skewX,
-#                         "skewY": skewY,
-#                         "kurtX": kurtX,
-#                         "kurtY": kurtY
-#                     })
-#         finally:
-#             os.chdir("..")
-#
-#     empirical_df = pd.DataFrame(empirical_dispersal_data)
-#     empirical_df.to_csv(full_output, sep="\t", index=False)
-#
-#     empirical_summary = (
-#         empirical_df.groupby(["disp_dist_max", "step"])[["freqX", "freqY"]]
-#         .mean()
-#         .reset_index()
-#     )
-#     empirical_summary.to_csv(grouped_output, sep="\t", index=False)
-#
-#     moments_df = pd.DataFrame(empirical_moments_data)
-#     moments_df.to_csv(moment_output, sep="\t", index=False)
-#
-#     grouped_moments = (
-#         moments_df.groupby("disp_dist_max")[["meanX", "meanY", "varX", "varY", "skewX", "skewY", "kurtX", "kurtY"]]
-#         .mean()
-#         .reset_index()
-#     )
-#     grouped_moments.to_csv(moment_grouped_output, sep="\t", index=False)
-#
-#     # Plot each moment parameter (mean, var, skew, kurt) in a separate subplot with X and Y
-#     fig, axs = plt.subplots(2, 2, figsize=(14, 10))
-#     axs = axs.flatten()
-#     parameters = [("meanX", "meanY", "Mean"), ("varX", "varY", "Variance"),
-#                   ("skewX", "skewY", "Skewness"), ("kurtX", "kurtY", "Kurtosis")]
-#
-#     for i, (x_param, y_param, title) in enumerate(parameters):
-#         axs[i].plot(grouped_moments["disp_dist_max"], grouped_moments[x_param], label="X", color="blue")
-#         axs[i].plot(grouped_moments["disp_dist_max"], grouped_moments[y_param], label="Y", color="orange")
-#         axs[i].set_title(f"{title} by maximum dispersal distance")
-#         axs[i].set_xlabel("Max Dispersal Distance")
-#         axs[i].set_ylabel(title)
-#         axs[i].legend()
-#         axs[i].grid(True)
-#
-#     plt.tight_layout()
-#     plt.savefig("empirical_dispersal_moments_by_dist.png",dpi=300)
-
-#extract_empirical_dispersal()
+    plt.xlabel(XLABEL)
+    plt.ylabel("Estimated Diffusion Rate")
+    plt.title(TITLE)
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(FIG_NAME, dpi=300)
+    # plt.show()
