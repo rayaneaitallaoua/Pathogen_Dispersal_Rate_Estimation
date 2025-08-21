@@ -1,4 +1,4 @@
-# Experiment 2: Sampling Radii
+# Experiment n°2: varying the sampling radius
 
 ## Goal
 Simulate sequence data at multiple **sampling radii**, run **Genepop** (IBD), run **BEAST** (phylogenetic BD), and then compute and compare dispersal-rate estimates and IBD regressions across radii.
@@ -30,7 +30,7 @@ Many analysis scripts **detect** such directories via regex, so keep this naming
 ### External software (add to path)
 - **GSpace** executable  
 - **Genepop** executable  
-- **BEAST** (v1.10.x) accessible via `srun beast`.  
+- **BEAST** (v1.10.5).  
 - **SLURM** job scheduler.
 
 ### Python packages
@@ -46,14 +46,12 @@ Many analysis scripts **detect** such directories via regex, so keep this naming
    genepop_analysis.py
    beast_xml_generation_per_radius.py
    beast_analysis_ifb_per_radius.py
-   non_phylo_bd.py
-   phylo_bd_beast.py
-   reg_bd.py
-   reg_ibd_genepop.py
    analyze_results_per_radius.py
    ```
 
 2. In the following scripts, set:
+
+in the experiment root directory, copy the following scripts and set
    ```
    MODE = "radius"
    ```
@@ -68,13 +66,6 @@ Many analysis scripts **detect** such directories via regex, so keep this naming
     ```
     nodes_sampled = {sample size (GSpace only samples one individual per node)}
     ```
-
-
-4. **Check SLURM modules**:
-   - `beast_analysis_ifb_per_radius.py` loads `java-jdk/11.0.9.1`.  
-     Change this if your cluster uses a different Java module.  
-   - `genepop_analysis.py` calls `srun Genepop`.  
-     Ensure the `Genepop` binary is in your PATH.
 
 ---
 
@@ -155,7 +146,19 @@ Outputs:
 
 ---
 
-### 6. Generate comparison plots using
+### 6. Collate & summarize BEAST results
+```
+analyze_results_per_maxDist.py
+```
+- Aggregates results across all replicates.  
+- Outputs grouped TSVs and figures.  
+- Default SLURM helper script is provided:  
+  ```
+  run_analyze_results_per_maxDist.slurm
+  ```
+
+---
+### 7. Generate comparison plots using
 
 `plotting.py` expects a **root** directory that contains **three subfolders**: `4seqs/`, `20seqs/`, `50seqs/`, each with grouped TSVs named:
 
@@ -185,7 +188,7 @@ Edit `root` to point to **your** archive path (or set it to `"."` if you run ins
 
 ---
 
-## 7. Generate comparison statistics using
+## 8. Generate comparison statistics using
 
 `stats_for_various_radii.py` expects the same `root` structure with `4seqs/`, `20seqs/`, `50seqs/` and the same grouped TSVs as **plotting.py**. Edit `root` to your archive path.
 
