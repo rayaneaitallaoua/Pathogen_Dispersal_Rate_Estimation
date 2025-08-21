@@ -10,4 +10,4 @@ source ~/.bashrc
 conda activate run_gspace
 
 cd /shared/ifbstor1/projects/phylodispsim/Pathogen_Dispersal_Rate_Estimation/dispersal_rate_per_radius
-python analyze_results.py
+python analyze_results_per_radius.py
