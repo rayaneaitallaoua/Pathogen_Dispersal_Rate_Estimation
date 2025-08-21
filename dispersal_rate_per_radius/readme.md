@@ -27,9 +27,9 @@ Many analysis scripts **detect** such directories via regex, so keep this naming
 
 ## Dependencies
 
-### External software
-- **GSpace** executable (path needed for `srun` in SLURM jobs).  
-- **Genepop** executable (called as `Genepop` in SLURM).  
+### External software (add to path)
+- **GSpace** executable  
+- **Genepop** executable  
 - **BEAST** (v1.10.x) accessible via `srun beast`.  
 - **SLURM** job scheduler.
 
@@ -63,10 +63,9 @@ Many analysis scripts **detect** such directories via regex, so keep this naming
    - `reg_ibd_genepop.py`
 
 
-3. Set the GSpace path and sample size in `GSpace_simulations_per_radius.py`: 
+3. Set the sample size in `GSpace_simulations_per_radius.py`: 
 
     ```
-    path_gspace = {path to gspace binary}
     nodes_sampled = {sample size (GSpace only samples one individual per node)}
     ```
 
