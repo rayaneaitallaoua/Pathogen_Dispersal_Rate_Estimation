@@ -1,9 +1,54 @@
-import glob
 import os
 import re
+import glob
 import pandas as pd
+import math
 
-# using genepop IBD inverse slope
+"""
+============================================================
+ Genepop IBD results aggregator (slope and 1/slope)
+============================================================
+
+Parses *.ISO outputs to extract the a(r) slope and its
+bootstrap CI, computes 1/slope and its inverted CI, and
+summarizes results by replicate and by group.
+
+Supports two directory schemes via MODE:
+
+1) Sampling Radius experiment
+   - Subdirectories: r{radius}_sim{rep}   (e.g., r10_sim3)
+   - Grouping key:  "radius"
+
+2) Maximal Dispersal Distance experiment
+   - Subdirectories: dist{maxDist}_sim{rep}  (e.g., dist10_sim3)
+   - Grouping key:   "max_distance"
+
+USAGE:
+- Set MODE = "radius" or "maxdist" below; the script adapts
+  directory matching and the grouping key automatically.
+
+Outputs:
+- genepop_results.tsv          (per replicate: slope & 1/slope)
+- genepop_inv_only.tsv         (per replicate: 1/slope only)
+- genepop_slope_summary.tsv    (summary by group for slope)
+- genepop_invSlope_summary.tsv (summary by group for 1/slope)
+============================================================
+"""
+
+MODE = "maxdist"  # <-- set to "radius" or "maxdist"
+
+if MODE == "radius":
+    DIR_PATTERN = r"r(\d+)_sim(\d+)"
+    KEY_NAME = "radius"
+elif MODE == "maxdist":
+    DIR_PATTERN = r"dist(\d+)_sim(\d+)"
+    KEY_NAME = "max_distance"
+else:
+    raise ValueError("MODE must be 'radius' or 'maxdist'")
+
+# robust numeric pattern (handles scientific notation)
+_NUM = r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?"
+_SLOPE_CI_RE = re.compile(rf"({_NUM})\s*\[\s*({_NUM})\s*,\s*({_NUM})\s*\]")
 
 def extract_slope_from_iso(file_path):
     # Open the file and read all lines
@@ -27,76 +72,93 @@ def aggregate_slopes():
     results = []
 
     for directory in os.listdir("."):
-        if os.path.isdir(directory):
-            os.chdir(directory)
+        if not os.path.isdir(directory):
+            continue
+
+        m = re.match(DIR_PATTERN, directory)
+        if not m:
+            # Not a target directory for the chosen MODE
+            continue
+
+        key_value, sim_num = map(int, m.groups())
+
+        os.chdir(directory)
+        try:
+            iso_files = glob.glob("*.ISO")
+            if not iso_files:
+                continue
+
+            # pick most recent ISO if multiple
+            iso_file = sorted(iso_files, key=os.path.getmtime)[-1]
+
             try:
-                # adapt pattern for radius
-                match = re.match(r"dist(\d+)_sim(\d+)", directory)
-                if not match:
-                    print(f"Skipping directory {directory}: name does not match expected format.")
-                    continue
-                max_distance, sim_num = map(int, match.groups())
+                parsed = extract_slope_from_iso(iso_file)
+            except Exception as e:
+                print(f"Error parsing {iso_file} in {directory}: {e}")
+                continue
 
-                # Load iso file
-                iso_file = glob.glob("*.ISO")
-                if not iso_file:
-                    continue
+            if parsed is None:
+                print(f"Skipping {directory}: could not parse slope from {iso_file}.")
+                continue
 
-                try:
-                    result = extract_slope_from_iso(iso_file[0])
-                    if result is None:
-                        print(f"Skipping {directory}: could not parse slope from {iso_file[0]}.")
-                        continue
-                    slope, ci_low, ci_high = result
+            slope, ci_low, ci_high = parsed
 
-                    inv_slope = float("nan") if slope == 0 else 1.0 / slope
-                    inv_ci_low = float("nan") if ci_low == 0 else 1.0 / ci_low
-                    inv_ci_high = float("nan") if ci_high == 0 else 1.0 / ci_high
+            inv_slope = math.nan if slope == 0 else 1.0 / slope
+            inv_ci_low = math.nan if ci_low == 0 else 1.0 / ci_low
+            inv_ci_high = math.nan if ci_high == 0 else 1.0 / ci_high
 
-                    if not pd.isna(inv_ci_low) and not pd.isna(inv_ci_high) and inv_ci_low > inv_ci_high:
-                        inv_ci_low, inv_ci_high = inv_ci_high, inv_ci_low
-                    results.append((max_distance, slope, ci_low, ci_high, inv_slope, inv_ci_low, inv_ci_high))
+            # After inversion, bounds may flip; reorder if needed
+            if not pd.isna(inv_ci_low) and not pd.isna(inv_ci_high) and inv_ci_low > inv_ci_high:
+                inv_ci_low, inv_ci_high = inv_ci_high, inv_ci_low
 
-                except Exception as e:
-                    print(f"Error reading {iso_file[0]} in {directory}: {e}")
-                    continue
+            results.append(
+                (key_value, sim_num, slope, ci_low, ci_high, inv_slope, inv_ci_low, inv_ci_high)
+            )
 
-            finally:
-                os.chdir("..")
+        finally:
+            os.chdir("..")
 
-    df = pd.DataFrame(results, columns=["max_distance", "slope", "ci_lower", "ci_upper",
-                                        "inv_slope", "inv_ci_lower", "inv_ci_upper"])
+    # Per-replicate table
+    df = pd.DataFrame(
+        results,
+        columns=[KEY_NAME, "simulation", "slope", "ci_lower", "ci_upper",
+                 "inv_slope", "inv_ci_lower", "inv_ci_upper"]
+    )
+    df.to_csv("genepop_results.tsv", sep="\t", index=False)
 
-    df.to_csv("genepop_results.tsv", sep='\t', index=False)
+    # 1/slope only per replicate (optional convenience)
+    df_inv = df[[KEY_NAME, "inv_slope", "inv_ci_lower", "inv_ci_upper"]].copy()
+    df_inv.to_csv("genepop_inv_only.tsv", sep="\t", index=False)
 
-    inv_results = []
+    if df.empty:
+        print("No valid ISO results found; summaries not generated.")
+        return
 
-    for _, row in df.iterrows():
-        slope = row["slope"]
-        ci_low = row["ci_lower"]
-        ci_high = row["ci_upper"]
-        max_distance = row["max_distance"]
-
-        inv_slope = float("nan") if slope == 0 else 1.0 / slope
-        inv_ci_low = float("nan") if ci_low == 0 else 1.0 / ci_low
-        inv_ci_high = float("nan") if ci_high == 0 else 1.0 / ci_high
-
-        if not pd.isna(inv_ci_low) and not pd.isna(inv_ci_high) and inv_ci_low > inv_ci_high:
-            inv_ci_low, inv_ci_high = inv_ci_high, inv_ci_low
-
-        inv_results.append((max_distance, inv_slope, inv_ci_low, inv_ci_high))
-
-    df_inv = pd.DataFrame(inv_results, columns=["max_distance", "inv_slope", "inv_ci_lower", "inv_ci_upper"])
-    df_inv.to_csv("genepop_inv_only.tsv", sep='\t', index=False)
-
-    grouped = df.groupby("max_distance")["slope"].agg(["mean", "median", lambda x: x.quantile(0.025), lambda x: x.quantile(0.975)])
-    grouped.columns = ["mean", "median", "quantile_2.5", "quantile_97.5"]
-    grouped.to_csv("genepop_slope_summary.tsv", sep='\t')
+    # Summary statistics for slope
+    grouped = (
+        df.groupby(KEY_NAME)["slope"]
+          .agg([
+              ("mean", "mean"),
+              ("median", "median"),
+              ("quantile_2.5", lambda x: x.quantile(0.025)),
+              ("quantile_97.5", lambda x: x.quantile(0.975)),
+          ])
+          .reset_index()
+    )
+    grouped.to_csv("genepop_slope_summary.tsv", sep="\t", index=False)
 
     # Summary statistics for 1/slope
-    grouped_inv = df.groupby("max_distance")["inv_slope"].agg(["mean", "median", lambda x: x.quantile(0.025), lambda x: x.quantile(0.975)])
-    grouped_inv.columns = ["mean", "median", "quantile_2.5", "quantile_97.5"]
-    grouped_inv.to_csv("genepop_invSlope_summary.tsv", sep='\t')
+    grouped_inv = (
+        df.groupby(KEY_NAME)["inv_slope"]
+          .agg([
+              ("mean", "mean"),
+              ("median", "median"),
+              ("quantile_2.5", lambda x: x.quantile(0.025)),
+              ("quantile_97.5", lambda x: x.quantile(0.975)),
+          ])
+          .reset_index()
+    )
+    grouped_inv.to_csv("genepop_invSlope_summary.tsv", sep="\t", index=False)
 
-
-aggregate_slopes()
+if __name__ == "__main__":
+    aggregate_slopes()
