@@ -1,12 +1,12 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-root = "/Users/ayoubrayaneaitallaoua/Desktop/IFB_analysis_result_archive/various_num_seqs/500_500_lattice"
+root = "."
 
 four_seqs_beast = pd.read_csv(
     f"{root}/4seqs/beast_diffusion_grouped.tsv", sep="\t")
 four_seqs_emp = pd.read_csv(
-    f"{root}/4seqs/empirical_diffusion_grouped.tsv", sep="\t")
+    f"{root}/4seqs/non_phylo_bd_grouped.tsv", sep="\t")
 four_seqs_reg = pd.read_csv(
     f"{root}/4seqs/genepop_invSlope_summary.tsv", sep="\t")
 four_bd_reg = pd.read_csv(
@@ -16,7 +16,7 @@ four_bd_reg = pd.read_csv(
 twenty_seqs_beast = pd.read_csv(
     f"{root}/20seqs/beast_diffusion_grouped.tsv", sep="\t")
 twenty_seqs_emp = pd.read_csv(
-    f"{root}/20seqs/empirical_diffusion_grouped.tsv", sep="\t")
+    f"{root}/20seqs/non_phylo_bd_grouped.tsv", sep="\t")
 twenty_seqs_reg = pd.read_csv(
     f"{root}/20seqs/genepop_invSlope_summary.tsv", sep="\t")
 twenty_bd_reg = pd.read_csv(f"{root}/20seqs/regression_bd_summary.tsv", sep="\t")
@@ -24,7 +24,7 @@ twenty_bd_reg = pd.read_csv(f"{root}/20seqs/regression_bd_summary.tsv", sep="\t"
 fifty_seqs_beast = pd.read_csv(
     f"{root}/50seqs/beast_diffusion_grouped.tsv", sep="\t")
 fifty_seqs_emp = pd.read_csv(
-    f"{root}/50seqs/empirical_diffusion_grouped.tsv", sep="\t")
+    f"{root}/50seqs/non_phylo_bd_grouped.tsv", sep="\t")
 fifty_seqs_reg = pd.read_csv(
     f"{root}/50seqs/genepop_invSlope_summary.tsv", sep="\t")
 fifty_bd_reg = pd.read_csv(f"{root}/50seqs/regression_bd_summary.tsv", sep="\t")
